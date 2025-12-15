@@ -182,114 +182,70 @@ export default function ExtractPage() {
         continue;
       }
 
-      // Check for table (lines with | separators)
-      if (line.includes('|') && line.trim().startsWith('|')) {
-        flushList();
+      // Check for REAL markdown table (must have separator row with dashes)
+      // Format: | Header | Header |
+      //         |--------|--------|
+      //         | Cell   | Cell   |
+      if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+        // Look ahead for separator row (contains dashes)
+        const nextLine = lines[i + 1];
+        const hasSeparator = nextLine && nextLine.match(/^\|[\s-:|]+\|$/);
 
-        // Collect all table rows
-        const tableRows: string[] = [line];
-        let j = i + 1;
-        while (j < lines.length && lines[j].includes('|')) {
-          tableRows.push(lines[j]);
-          j++;
-        }
-        i = j - 1; // Skip processed lines
+        if (hasSeparator) {
+          flushList();
 
-        // Parse table
-        const parsedRows = tableRows
-          .filter(row => !row.match(/^\|[\s-:|]+\|$/)) // Filter separator rows
-          .map(row =>
-            row.split('|')
-              .filter(cell => cell.trim() !== '')
-              .map(cell => cell.trim())
-          );
+          // Collect all table rows
+          const tableRows: string[] = [line];
+          let j = i + 1;
+          while (j < lines.length && lines[j].includes('|') && lines[j].trim().startsWith('|')) {
+            tableRows.push(lines[j]);
+            j++;
+          }
+          i = j - 1; // Skip processed lines
 
-        if (parsedRows.length > 0) {
-          const headerRow = parsedRows[0];
-          const bodyRows = parsedRows.slice(1);
+          // Parse table - filter out separator rows
+          const parsedRows = tableRows
+            .filter(row => !row.match(/^\|[\s-:|]+\|$/)) // Filter separator rows
+            .map(row =>
+              row.split('|')
+                .filter(cell => cell.trim() !== '')
+                .map(cell => cell.trim())
+            )
+            .filter(row => row.length >= 2); // Must have at least 2 columns
 
-          elements.push(
-            <div key={key++} className="my-4 overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-600 text-sm">
-                <thead>
-                  <tr className="bg-gray-800">
-                    {headerRow.map((cell, cellIdx) => (
-                      <th key={cellIdx} className="border border-gray-600 px-4 py-2 text-left text-white font-semibold">
-                        {cell}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {bodyRows.map((row, rowIdx) => (
-                    <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-gray-900/50' : 'bg-gray-800/30'}>
-                      {row.map((cell, cellIdx) => (
-                        <td key={cellIdx} className="border border-gray-600 px-4 py-2 text-gray-300">
+          if (parsedRows.length >= 2) { // Must have header + at least 1 data row
+            const headerRow = parsedRows[0];
+            const bodyRows = parsedRows.slice(1);
+
+            elements.push(
+              <div key={key++} className="my-4 overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-600 text-sm">
+                  <thead>
+                    <tr className="bg-gray-800">
+                      {headerRow.map((cell, cellIdx) => (
+                        <th key={cellIdx} className="border border-gray-600 px-4 py-2 text-left text-white font-semibold">
                           {cell}
-                        </td>
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          );
-        }
-        continue;
-      }
-
-      // Simple pipe-separated table (no leading |)
-      if (line.includes('|') && !line.startsWith('#')) {
-        flushList();
-
-        // Collect all table rows
-        const tableRows: string[] = [line];
-        let j = i + 1;
-        while (j < lines.length && lines[j].includes('|') && !lines[j].startsWith('#')) {
-          tableRows.push(lines[j]);
-          j++;
-        }
-        i = j - 1;
-
-        // Filter out separator lines and parse
-        const parsedRows = tableRows
-          .filter(row => !row.match(/^[\s-:|]+$/))
-          .map(row =>
-            row.split('|').map(cell => cell.trim())
-          );
-
-        if (parsedRows.length > 0) {
-          const headerRow = parsedRows[0];
-          const bodyRows = parsedRows.slice(1);
-
-          elements.push(
-            <div key={key++} className="my-4 overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-600 text-sm">
-                <thead>
-                  <tr className="bg-gray-800">
-                    {headerRow.map((cell, cellIdx) => (
-                      <th key={cellIdx} className="border border-gray-600 px-4 py-2 text-left text-white font-semibold">
-                        {cell}
-                      </th>
+                  </thead>
+                  <tbody>
+                    {bodyRows.map((row, rowIdx) => (
+                      <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-gray-900/50' : 'bg-gray-800/30'}>
+                        {row.map((cell, cellIdx) => (
+                          <td key={cellIdx} className="border border-gray-600 px-4 py-2 text-gray-300">
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {bodyRows.map((row, rowIdx) => (
-                    <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-gray-900/50' : 'bg-gray-800/30'}>
-                      {row.map((cell, cellIdx) => (
-                        <td key={cellIdx} className="border border-gray-600 px-4 py-2 text-gray-300">
-                          {cell}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          );
+                  </tbody>
+                </table>
+              </div>
+            );
+            continue;
+          }
         }
-        continue;
       }
 
       // Headers
