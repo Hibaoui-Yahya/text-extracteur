@@ -1,36 +1,184 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Text Extracteur
 
-## Getting Started
+**AI-Powered OCR Document Text Extraction**
 
-First, run the development server:
+Extract text from PDFs, images, and scanned documents using advanced AI vision technology powered by Mistral AI Pixtral.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+![Text Extracteur](public/logo.png)
+
+## ✨ Features
+
+- **🤖 AI-Powered OCR** - Advanced Mistral Pixtral vision model extracts text with high accuracy from any document
+- **📄 Multi-Format Support** - Process PDFs, PNG, JPG, and WEBP files with ease
+- **🌍 Multi-Language Support** - Extract text from documents in any language without configuration
+- **⚡ Instant Results** - Get extracted text within seconds, ready to copy and use
+- **🔒 Privacy First** - Your documents are processed securely. No data is ever stored
+- **📋 Easy Copy** - One-click copy functionality for extracted text
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- Mistral AI API Key
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/text-extracteur.git
+   cd text-extracteur
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   
+   Create a `.env.local` file in the root directory:
+   ```env
+   MISTRAL_API_KEY=your_mistral_api_key_here
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/) with App Router
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **AI/OCR**: [Mistral AI Pixtral](https://mistral.ai/)
+- **PDF Processing**: [pdf-parse](https://www.npmjs.com/package/pdf-parse)
+- **Icons**: [Lucide React](https://lucide.dev/), [Iconsax](https://iconsax-react.pages.dev/)
+
+## 📁 Project Structure
+
+```
+text-extracteur/
+├── public/
+│   ├── logo.png           # Application logo
+│   └── Conqrai.png        # Favicon
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── ocr/
+│   │   │       └── route.ts    # OCR API endpoint
+│   │   ├── extract/
+│   │   │   └── page.tsx        # Extraction tool page
+│   │   ├── globals.css         # Global styles
+│   │   ├── layout.tsx          # Root layout
+│   │   └── page.tsx            # Landing page
+│   ├── components/
+│   │   └── ui/
+│   │       ├── animated-group.tsx
+│   │       ├── button.tsx
+│   │       ├── cta-with-marquee.tsx
+│   │       ├── grid-feature-cards.tsx
+│   │       ├── header.tsx
+│   │       ├── hero-section.tsx
+│   │       ├── how-it-works.tsx
+│   │       ├── menu-toggle-icon.tsx
+│   │       └── use-scroll.tsx
+│   └── lib/
+│       ├── mistral.ts          # Mistral AI integration
+│       └── utils.ts            # Utility functions
+├── .env.local                  # Environment variables (create this)
+├── package.json
+├── tailwind.config.ts
+└── tsconfig.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔧 API Reference
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### POST `/api/ocr`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Extract text from uploaded documents.
 
-## Learn More
+**Request:**
+- Content-Type: `multipart/form-data`
+- Body: `file` - The document to process (PDF, PNG, JPG, WEBP)
 
-To learn more about Next.js, take a look at the following resources:
+**Response:**
+```json
+{
+  "success": true,
+  "text": "Extracted text content...",
+  "pageCount": 1
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Error Response:**
+```json
+{
+  "success": false,
+  "error": "Error message"
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📝 Supported File Types
 
-## Deploy on Vercel
+| Format | Max Size | Notes |
+|--------|----------|-------|
+| PDF | 20MB | Text-based and scanned |
+| PNG | 20MB | All resolutions |
+| JPG/JPEG | 20MB | All resolutions |
+| WEBP | 20MB | All resolutions |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔒 Privacy & Security
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **No Data Storage**: Documents are processed in memory and immediately discarded
+- **Secure Processing**: All file handling is done server-side
+- **API Key Security**: Your Mistral API key is never exposed to the client
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Connect your repository to [Vercel](https://vercel.com)
+3. Add your `MISTRAL_API_KEY` environment variable
+4. Deploy!
+
+### Other Platforms
+
+The app can be deployed to any platform that supports Next.js:
+- Railway
+- Render
+- AWS Amplify
+- DigitalOcean App Platform
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Mistral AI](https://mistral.ai/) for the powerful Pixtral vision model
+- [Vercel](https://vercel.com/) for the Next.js framework
+- [shadcn](https://twitter.com/shadcn) for the beautiful UI components
+
+---
+
+Made with ❤️ by [ConqrAI](https://github.com/conqrai)
