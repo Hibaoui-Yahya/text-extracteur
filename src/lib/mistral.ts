@@ -197,10 +197,20 @@ export async function extractTextFromImage(
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
+            // Try to get error as text first, then parse as JSON if possible
+            const errorText = await response.text();
+            let errorMessage = errorText;
+
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorJson.error?.message || errorText;
+            } catch {
+                // Keep errorText as is if not valid JSON
+            }
+
             return {
                 success: false,
-                error: `Mistral API error: ${response.status} - ${errorData.message || response.statusText}`,
+                error: `Mistral API error: ${response.status} - ${errorMessage}`,
             };
         }
 
