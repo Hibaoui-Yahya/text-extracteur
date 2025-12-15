@@ -94,7 +94,7 @@ export async function extractTextFromImage(
                 Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "mistral-ocr-latest",
+                model: "mistral-ocr-2503-completion",
                 document: {
                     type: "image_url",
                     image_url: `data:${mimeType};base64,${imageBase64}`,
@@ -168,7 +168,7 @@ export async function extractTextFromPdfWithOCR(
                 Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "mistral-ocr-latest",
+                model: "mistral-ocr-2503-completion",
                 document: {
                     type: "document_url",
                     document_url: `data:application/pdf;base64,${pdfBase64}`,
