@@ -2,13 +2,13 @@
 
 **AI-Powered OCR Document Text Extraction**
 
-Extract text from PDFs, images, and scanned documents using advanced AI vision technology powered by Mistral AI Pixtral.
+Extract text from PDFs, images, and scanned documents using the official Mistral OCR API (`mistral-ocr-2505`).
 
 ![Text Extracteur](public/logo.png)
 
 ## ✨ Features
 
-- **🤖 AI-Powered OCR** - Advanced Mistral Pixtral vision model extracts text with high accuracy from any document
+- **🤖 AI-Powered OCR** - Official Mistral OCR API (`mistral-ocr-2505`) extracts text with 94.9% accuracy
 - **📄 Multi-Format Support** - Process PDFs, PNG, JPG, and WEBP files with ease
 - **🌍 Multi-Language Support** - Extract text from documents in any language without configuration
 - **⚡ Instant Results** - Get extracted text within seconds, ready to copy and use
@@ -59,9 +59,23 @@ Extract text from PDFs, images, and scanned documents using advanced AI vision t
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **AI/OCR**: [Mistral AI Pixtral](https://mistral.ai/)
-- **PDF Processing**: [pdf-parse](https://www.npmjs.com/package/pdf-parse)
+- **AI/OCR**: [Mistral OCR API](https://docs.mistral.ai/api/endpoint/ocr) (`mistral-ocr-2505`)
 - **Icons**: [Lucide React](https://lucide.dev/), [Iconsax](https://iconsax-react.pages.dev/)
+
+## 🤖 Mistral OCR API
+
+This project uses the official **Mistral OCR API** for document text extraction:
+
+- **Endpoint**: `https://api.mistral.ai/v1/ocr`
+- **Model**: `mistral-ocr-2505` (May 2025 version)
+- **Capabilities**:
+  - High-accuracy text recognition
+  - Document structure understanding
+  - Table extraction with formatting
+  - Mathematical equation support
+  - Multi-language support (1000+ languages)
+  - Up to 2,000 pages per minute processing
+- **Output**: Structured Markdown with preserved formatting
 
 ## 📁 Project Structure
 
@@ -175,7 +189,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Mistral AI](https://mistral.ai/) for the powerful Pixtral vision model
+- [Mistral AI](https://mistral.ai/) for the powerful OCR API (`mistral-ocr-2505`)
 - [Vercel](https://vercel.com/) for the Next.js framework
 - [shadcn](https://twitter.com/shadcn) for the beautiful UI components
 
