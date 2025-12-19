@@ -13,7 +13,7 @@ const features = [
     {
         title: "AI-Powered OCR",
         icon: Scan,
-        description: "Advanced Mistral Pixtral vision model extracts text with high accuracy from any document.",
+        description: "Advanced ConqrOCR vision model extracts text with high accuracy from any document.",
     },
     {
         title: "Any Document",
@@ -85,7 +85,7 @@ export default function HeroSection() {
 
                 {/* Badge */}
                 <AnimatedContainer delay={0.1} className="relative z-10 flex items-center gap-2 border border-[#35AEF3]/30 bg-gray-800/50 backdrop-blur-sm hover:border-[#35AEF3]/50 rounded-full w-max mx-auto px-4 py-2 mt-16 md:mt-12 transition-colors">
-                    <span className="text-gray-300">Powered by Mistral AI Pixtral</span>
+                    <span className="text-gray-300">Powered by ConqrOCR</span>
                     <Link href="/extract" className="flex items-center gap-1 font-medium text-[#35AEF3]">
                         <span>Try it</span>
                         <ArrowRight className="w-4 h-4" />
@@ -213,7 +213,7 @@ export default function HeroSection() {
                         {/* Info */}
                         <div className="flex items-center gap-2 text-gray-500 text-sm">
                             <div className="w-2 h-2 rounded-full bg-[#35AEF3] animate-pulse"></div>
-                            <span>Powered by Mistral AI Pixtral</span>
+                            <span>Powered by ConqrOCR</span>
                             <span>•</span>
                             <span>Your data is never stored</span>
                         </div>

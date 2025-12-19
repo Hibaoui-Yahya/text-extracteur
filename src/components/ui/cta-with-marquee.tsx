@@ -126,7 +126,7 @@ export function CTAWithMarquee() {
                         </div>
                         <div className="flex items-center gap-3 text-gray-500 text-sm">
                             <div className="w-2 h-2 rounded-full bg-[#35AEF3] animate-pulse"></div>
-                            <span>Powered by Mistral AI Pixtral</span>
+                            <span>Powered by ConqrOCR</span>
                             <span>•</span>
                             <span>Your data is never stored</span>
                         </div>

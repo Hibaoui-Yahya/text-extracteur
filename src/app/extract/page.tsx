@@ -503,7 +503,7 @@ export default function ExtractPage() {
         {/* Footer */}
         <footer className="mt-16 text-center">
           <p className="text-gray-600 text-sm">
-            Powered by Mistral AI Pixtral • Your data is not stored
+            Powered by ConqrOCR • Your data is not stored
           </p>
         </footer>
       </main>

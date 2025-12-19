@@ -68,7 +68,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({
             description:
                 "Our AI analyzes your document and extracts all text with structure preserved.",
             benefits: [
-                "Powered by Mistral Pixtral",
+                "Powered by ConqrOCR",
                 "Multi-language support",
                 "Preserves formatting & layout",
             ],
