@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   DocumentUpload,
@@ -27,6 +27,7 @@ export default function ExtractPage() {
   const [pageCount, setPageCount] = useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isPasting, setIsPasting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ALLOWED_TYPES = [
@@ -71,6 +72,48 @@ export default function ExtractPage() {
       setPageCount(0);
     }
   }, []);
+
+  // Handle paste from clipboard (Ctrl+V)
+  const handlePaste = useCallback((e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      // Check if it's an image
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        setIsPasting(true);
+
+        const blob = item.getAsFile();
+        if (blob) {
+          // Create a proper File object with a name
+          const extension = item.type.split('/')[1] || 'png';
+          const fileName = `pasted-image-${Date.now()}.${extension}`;
+          const file = new File([blob], fileName, { type: item.type });
+
+          if (validateFile(file)) {
+            setFile(file);
+            setError("");
+            setExtractedText("");
+            setPageCount(0);
+          }
+        }
+
+        setIsPasting(false);
+        break;
+      }
+    }
+  }, []);
+
+  // Listen for paste events globally
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, [handlePaste]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -409,6 +452,9 @@ export default function ExtractPage() {
                 <div>
                   <p className="text-white font-medium text-lg">
                     Drop your document here or click to browse
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Or press <kbd className="px-2 py-0.5 bg-gray-700 rounded text-xs font-mono text-[#35AEF3]">Ctrl</kbd> + <kbd className="px-2 py-0.5 bg-gray-700 rounded text-xs font-mono text-[#35AEF3]">V</kbd> to paste an image
                   </p>
                   <p className="text-gray-500 text-sm mt-2">
                     Supports PDF, PNG, JPG • Max 20MB
