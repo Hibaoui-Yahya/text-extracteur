@@ -205,9 +205,9 @@ export default function HeroSection() {
                     <div className="flex flex-col items-center text-center gap-4">
                         {/* Logo */}
                         <img
-                            src="/logo.png"
-                            alt="Text Extracteur"
-                            className="w-24 h-24 object-contain"
+                            src="/Conqrai_logo.svg"
+                            alt="ConqrAI"
+                            className="h-16 object-contain"
                         />
 
                         {/* Info */}

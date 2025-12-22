@@ -61,9 +61,9 @@ export function Header() {
                 {/* Logo */}
                 <Link href="/" className="hover:scale-105 transition-transform duration-300">
                     <img
-                        src="/logo.png"
-                        alt="Text Extracteur"
-                        className="h-14 w-14 object-contain"
+                        src="/Conqrai_logo.svg"
+                        alt="ConqrAI"
+                        className="h-10 object-contain"
                     />
                 </Link>
 

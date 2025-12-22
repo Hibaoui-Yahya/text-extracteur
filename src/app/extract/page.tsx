@@ -385,9 +385,9 @@ export default function ExtractPage() {
         <header className="text-center mb-12">
           <div className="inline-flex items-center justify-center mb-6">
             <img
-              src="/logo.png"
-              alt="Text Extracteur Logo"
-              className="w-32 h-32 object-contain drop-shadow-lg"
+              src="/Conqrai_logo.svg"
+              alt="ConqrAI Logo"
+              className="h-20 object-contain drop-shadow-lg"
             />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3">
