@@ -10,7 +10,7 @@ import {
   Copy,
   TickCircle,
 } from "iconsax-react";
-import { Header } from "@/components/ui/header";
+import { ExtractHeader } from "@/components/ui/extract-header";
 
 interface OCRResult {
   success: boolean;
@@ -378,23 +378,16 @@ export default function ExtractPage() {
       </div>
 
       {/* Header */}
-      <Header />
+      <ExtractHeader />
 
       <main className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <header className="text-center mb-12">
-          <div className="inline-flex items-center justify-center mb-6">
-            <img
-              src="/logo.png"
-              alt="Text Extracteur Logo"
-              className="w-32 h-32 object-contain drop-shadow-lg"
-            />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3">
-            Text Extracteur
+        {/* Page Title */}
+        <header className="text-center mb-10">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3">
+            Extract Text from Documents
           </h1>
-          <p className="text-gray-400 text-lg max-w-md mx-auto">
-            Extract text from any document using AI-powered OCR
+          <p className="text-gray-400 text-base sm:text-lg max-w-md mx-auto">
+            Upload an image or PDF and let AI extract the text for you
           </p>
         </header>
 
