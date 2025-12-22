@@ -23,28 +23,8 @@ export function ExtractHeader({ className }: ExtractHeaderProps) {
                 className
             )}
         >
-            <nav className="mx-auto flex h-16 w-full max-w-4xl items-center justify-between px-4">
-                {/* Logo + Brand */}
-                <Link
-                    href="/"
-                    className="flex items-center gap-3 group"
-                >
-                    <div className="relative">
-                        <img
-                            src="/logo.png"
-                            alt="Text Extracteur"
-                            className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110"
-                        />
-                        {/* Glow effect on hover */}
-                        <div className="absolute inset-0 bg-[#35AEF3]/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                    <div className="hidden sm:block">
-                        <span className="text-white font-semibold text-lg">Text Extracteur</span>
-                        <span className="text-gray-500 text-xs block -mt-0.5">AI-Powered OCR</span>
-                    </div>
-                </Link>
-
-                {/* Back to Home Button */}
+            <nav className="mx-auto flex h-14 w-full max-w-4xl items-center justify-end px-4">
+                {/* Back to Home Button - Right Corner */}
                 <Link
                     href="/"
                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-400 hover:text-white rounded-lg hover:bg-gray-800/50 transition-all duration-200 group"

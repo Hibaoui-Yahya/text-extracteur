@@ -381,13 +381,20 @@ export default function ExtractPage() {
       <ExtractHeader />
 
       <main className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        {/* Page Title */}
-        <header className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3">
-            Extract Text from Documents
+        {/* Header with Logo */}
+        <header className="text-center mb-12">
+          <div className="inline-flex items-center justify-center mb-6">
+            <img
+              src="/logo.png"
+              alt="Text Extracteur Logo"
+              className="w-32 h-32 object-contain drop-shadow-lg"
+            />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3">
+            Text Extracteur
           </h1>
-          <p className="text-gray-400 text-base sm:text-lg max-w-md mx-auto">
-            Upload an image or PDF and let AI extract the text for you
+          <p className="text-gray-400 text-lg max-w-md mx-auto">
+            Extract text from any document using AI-powered OCR
           </p>
         </header>
 
