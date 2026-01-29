@@ -532,7 +532,7 @@ export default function ExtractPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Processing Document</h3>
-                    <p className="text-gray-400 text-sm">Using Mistral OCR 2512</p>
+                    <p className="text-gray-400 text-sm">Processing document</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -583,11 +583,11 @@ export default function ExtractPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Extracting with Mistral OCR 2512...
+                Processing document...
               </span>
             ) : (
               <span className="inline-flex items-center gap-2">
-                🤖 Extract with Mistral OCR
+                Extract Text
               </span>
             )}
           </button>

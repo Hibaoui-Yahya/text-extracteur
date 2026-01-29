@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useScroll } from '@/shared/ui/use-scroll';
-import { cn } from '@/lib/utils';
+import { cn } from '@/core/utils';
 import { ArrowLeft, Home } from 'lucide-react';
 
 interface ExtractHeaderProps {

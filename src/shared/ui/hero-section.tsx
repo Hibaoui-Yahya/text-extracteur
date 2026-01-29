@@ -11,9 +11,9 @@ import { CTAWithMarquee } from '@/shared/ui/cta-with-marquee';
 
 const features = [
     {
-        title: "AI-Powered OCR with Mistral",
+        title: "AI-Powered OCR with ConqrOCR",
         icon: Scan,
-        description: "Advanced Mistral OCR (mistral-ocr-2512) with 94.9% accuracy for universal document processing.",
+        description: "Advanced ConqrOCR with 94.9% accuracy for universal document processing.",
     },
     {
         title: "Smart Document Classification",
@@ -85,7 +85,7 @@ export default function HeroSection() {
 
                 {/* Badge */}
                 <AnimatedContainer delay={0.1} className="relative z-10 flex items-center gap-2 border border-[#35AEF3]/30 bg-gray-800/50 backdrop-blur-sm hover:border-[#35AEF3]/50 rounded-full w-max mx-auto px-4 py-2 mt-16 md:mt-12 transition-colors">
-                    <span className="text-gray-300">🤖 Powered by Mistral OCR 2512</span>
+                    <span className="text-gray-300">Powered by ConqrOCR</span>
                     <Link href="/extract" className="flex items-center gap-1 font-medium text-[#35AEF3]">
                         <span>Try it now</span>
                         <ArrowRight className="w-4 h-4" />
@@ -103,7 +103,7 @@ export default function HeroSection() {
                 {/* Subtitle */}
                 <AnimatedContainer delay={0.3}>
                     <p className="relative z-10 text-base md:text-lg mx-auto max-w-2xl text-center mt-6 text-gray-400 px-4">
-                        Advanced Mistral OCR with smart classification, structured extraction, and zero-storage architecture. Process IDs, CVs, invoices, contracts, and more with 94.9% accuracy.
+                        Advanced OCR with smart classification, structured extraction, and zero-storage architecture. Process IDs, CVs, invoices, contracts, and more with high accuracy.
                     </p>
                 </AnimatedContainer>
 
@@ -113,7 +113,7 @@ export default function HeroSection() {
                         href="/extract"
                         className="flex items-center gap-2 bg-[#35AEF3] hover:bg-[#4FBEF5] text-white px-8 py-4 rounded-full font-medium transition shadow-lg shadow-[#35AEF3]/25"
                     >
-                        🤖 Try Mistral OCR
+                        Try it now
                         <ArrowRight className="w-5 h-5" />
                     </Link>
                     <Link
@@ -151,7 +151,7 @@ export default function HeroSection() {
                             >
                                 Smart Document Processing
                             </motion.p>
-                            <p className="text-gray-500 text-sm mt-2">PDF, PNG, JPG, WEBP • Max 50MB • Mistral OCR 2512</p>
+                            <p className="text-gray-500 text-sm mt-2">PDF, PNG, JPG, WEBP • Max 50MB</p>
 
                             {/* Animated Button */}
                             <motion.div
@@ -175,10 +175,10 @@ export default function HeroSection() {
                 <div className="mx-auto w-full max-w-5xl space-y-8 px-4">
                     <AnimatedContainer className="mx-auto max-w-3xl text-center">
                         <h2 className="text-3xl font-bold tracking-wide text-balance md:text-4xl lg:text-5xl xl:font-extrabold text-white">
-                            🤖 Advanced OCR Features
+                            Advanced OCR Features
                         </h2>
                         <p className="text-gray-400 mt-4 text-sm tracking-wide text-balance md:text-base">
-                            Mistral OCR 2512 with smart classification, structured extraction, and zero-storage processing.
+                            Advanced OCR with smart classification, structured extraction, and zero-storage processing.
                         </p>
                     </AnimatedContainer>
 
