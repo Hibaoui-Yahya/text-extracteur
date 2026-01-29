@@ -151,8 +151,8 @@ function checkMissingRequiredFields(extraction: StructuredExtraction, docType: D
       break;
     
     case 'MEDICAL_DOCUMENT':
-      if (!extraction.patient_name && !extraction.provider && !extraction.date) {
-        warnings.push('MISSING_REQUIRED:patient_name OR provider OR date');
+      if (!extraction.patient_name && !extraction.provider && !extraction.medical_date) {
+        warnings.push('MISSING_REQUIRED:patient_name OR provider OR medical_date');
       }
       break;
     
@@ -215,7 +215,7 @@ function appearsPartiallyCropped(extraction: StructuredExtraction): boolean {
   
   // Check for abrupt endings
   const endsWithPartialWord = text.length > 100 && 
-    (text.endsWith('-') || text.endsWith('…') || text.match(/\w+$/));
+    (text.endsWith('-') || text.endsWith('…') || !!text.match(/\w+$/));
 
   // Check for very short content
   const isVeryShort = text.length < 100;

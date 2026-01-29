@@ -136,7 +136,7 @@ export function createTestOCRResponse(
     case 'INVOICE_RECEIPT':
       baseResponse.extraction = {
         invoice_number: 'INV-2023-001',
-        date: '2023-10-15',
+        invoice_date: '2023-10-15',
         vendor: 'Office Supplies Co.',
         customer: 'Acme Corporation',
         total: 1250.50,

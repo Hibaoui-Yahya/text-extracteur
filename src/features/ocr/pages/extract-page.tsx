@@ -14,7 +14,7 @@ import { ALLOWED_FILE_TYPES } from "@/shared/constants/file-constants";
 import { validateFile } from "@/core/utils/file-validation";
 import { ExtractHeader } from "@/shared/ui/extract-header";
 
-import { OCRResult, OCRSystemResponse } from "@/shared/types/ocr-system.types";
+import { OCRSystemResponse } from "@/shared/types/ocr-system.types";
 import { ResultsPanel } from "@/features/ocr/components/results-panel";
 
 export default function ExtractPage() {
@@ -26,6 +26,8 @@ export default function ExtractPage() {
   const [copied, setCopied] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [extractedText, setExtractedText] = useState<string>("");
+  const [pageCount, setPageCount] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ALLOWED_TYPES = ALLOWED_FILE_TYPES;
@@ -542,7 +544,7 @@ export default function ExtractPage() {
               <div className="mt-4">
                 <div className="flex items-center gap-4 text-xs">
                   <div className="flex items-center gap-2 text-green-400">
-                    <CheckCircle className="w-3 h-3" />
+                    <TickCircle className="w-3 h-3" />
                     <span>Upload Complete</span>
                   </div>
                   <div className="flex items-center gap-2 text-blue-400">
@@ -553,7 +555,9 @@ export default function ExtractPage() {
                     <span>OCR Processing</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-500">
-                    <Circle className="w-3 h-3" />
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="12" r="8" />
+                    </svg>
                     <span>Structuring Data</span>
                   </div>
                 </div>

@@ -100,9 +100,9 @@ export function fallbackExtraction(ocrText: string): string {
   // Extract potential dates
   const dateMatches = ocrText.match(/date[:\s]*(\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4})/i);
   if (dateMatches) {
-    result.extraction.date = dateMatches[1];
+    result.extraction.date_of_issue = dateMatches[1];
     result.evidence.push({
-      field: 'date',
+      field: 'date_of_issue',
       value: dateMatches[1],
       source_text: dateMatches[0],
       confidence: 0.6

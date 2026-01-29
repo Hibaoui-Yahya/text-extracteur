@@ -144,7 +144,7 @@ export interface StructuredExtraction {
   
   // INVOICE_RECEIPT fields
   invoice_number?: string | null;
-  date?: string | null;
+  invoice_date?: string | null;
   vendor?: string | null;
   customer?: string | null;
   items?: Array<{
@@ -197,7 +197,7 @@ export interface StructuredExtraction {
   // MEDICAL_DOCUMENT fields
   patient_name?: string | null;
   provider?: string | null;
-  date?: string | null;
+  medical_date?: string | null;
   diagnosis?: string | null;
   treatment?: string | null;
   

@@ -205,12 +205,12 @@ function extractKeyValue(text: string): DocumentKeyValue | null {
 }
 
 function detectFormatting(normalizedOutput: NormalizedOCROutput): FormattingInfo {
-  let hasBold = false;
-  let hasItalic = false;
-  let hasUnderline = false;
+  let hasBold: boolean | 'unknown' = false;
+  let hasItalic: boolean | 'unknown' = false;
+  let hasUnderline: boolean | 'unknown' = false;
   let hasTables = normalizedOutput.has_tables;
   let hasLists = false;
-  let multiColumn = 'unknown';
+  let multiColumn: boolean | 'unknown' = 'unknown';
 
   // Analyze text for formatting clues
   for (const page of normalizedOutput.pages) {

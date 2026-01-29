@@ -23,7 +23,7 @@ export async function performStructuredExtraction(
     const parsedResponse = parseLLMResponse(llmResponse);
 
     // Validate the response against the schema
-    const validation = validateExtraction(parsedResponse, docType);
+    const validation = validateExtraction(parsedResponse.extraction, docType);
 
     if (!validation.isValid) {
       // If validation fails, return minimal extraction with warnings
@@ -156,8 +156,8 @@ function validateExtraction(
       break;
 
     case 'MEDICAL_DOCUMENT':
-      if (!extraction.patient_name && !extraction.provider && !extraction.date) {
-        warnings.push('MISSING_REQUIRED:patient_name OR provider OR date');
+      if (!extraction.patient_name && !extraction.provider && !extraction.medical_date) {
+        warnings.push('MISSING_REQUIRED:patient_name OR provider OR medical_date');
       }
       break;
 

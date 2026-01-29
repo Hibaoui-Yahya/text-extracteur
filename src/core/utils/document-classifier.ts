@@ -86,8 +86,8 @@ function isCvResume(text: string): boolean {
   const matches = text.match(cvPattern);
 
   // Need at least 2 CV-related terms
-  const hasEmail = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-  const hasPhone = text.match(/(\+?\d{1,3}[- .]?\(?\d{3}\)?[- .]?\d{3}[- .]?\d{4})|(\d{3}[- .]?\d{3}[- .]?\d{4})/);
+  const hasEmail = !!text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const hasPhone = !!text.match(/(\+?\d{1,3}[- .]?\(?\d{3}\)?[- .]?\d{3}[- .]?\d{4})|(\d{3}[- .]?\d{3}[- .]?\d{4})/);
 
   return (matches ? matches.length >= 2 : false) || (hasEmail && hasPhone);
 }
@@ -113,7 +113,7 @@ function isInvoiceReceipt(text: string): boolean {
   const matches = text.match(invoicePattern);
 
   // Need at least 3 invoice-related terms
-  const hasCurrency = text.match(/\$\d+\.\d{2}|€\d+\.\d{2}|£\d+\.\d{2}/);
+  const hasCurrency = !!text.match(/\$\d+\.\d{2}|€\d+\.\d{2}|£\d+\.\d{2}/);
 
   return (matches ? matches.length >= 3 : false) || hasCurrency;
 }
@@ -204,8 +204,8 @@ function isBankStatement(text: string): boolean {
   const matches = text.match(bankPattern);
 
   // Need at least 3 bank-related terms
-  const hasAccountNumber = text.match(/\b\d{8,16}\b/);
-  const hasCurrency = text.match(/\$\d+\.\d{2}|€\d+\.\d{2}|£\d+\.\d{2}/);
+  const hasAccountNumber = !!text.match(/\b\d{8,16}\b/);
+  const hasCurrency = !!text.match(/\$\d+\.\d{2}|€\d+\.\d{2}|£\d+\.\d{2}/);
 
   return (matches ? matches.length >= 3 : false) || (hasAccountNumber && hasCurrency);
 }

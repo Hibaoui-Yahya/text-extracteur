@@ -129,11 +129,17 @@ export class OCRService {
         if (!result.success) {
           throw new Error(result.error || 'Mistral OCR API error');
         }
+        if (!result.text) {
+          throw new Error('No text returned from OCR service');
+        }
         return JSON.parse(result.text) as MistralOCRResponse;
       } else {
         const result = await extractTextFromImage(base64, mime_type);
         if (!result.success) {
           throw new Error(result.error || 'Mistral OCR API error');
+        }
+        if (!result.text) {
+          throw new Error('No text returned from OCR service');
         }
         return JSON.parse(result.text) as MistralOCRResponse;
       }
