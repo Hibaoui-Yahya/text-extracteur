@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils";
 import { Upload, Cpu, Copy } from "lucide-react";
 import type React from "react";
 

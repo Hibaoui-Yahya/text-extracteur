@@ -1,5 +1,6 @@
-import HeroSection from "@/components/ui/hero-section"
+// Re-export the landing page from features
+import HomePage from '@/features/landing/pages/home-page';
 
-export default function LandingPage() {
-    return <HeroSection />
+export default function Page() {
+  return <HomePage />;
 }

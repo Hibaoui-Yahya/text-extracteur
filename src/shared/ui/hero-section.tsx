@@ -4,10 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, FileText, Scan, Globe, Zap, Shield, Copy } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { FeatureCard } from '@/components/ui/grid-feature-cards';
-import { HowItWorks } from '@/components/ui/how-it-works';
-import { Header } from '@/components/ui/header';
-import { CTAWithMarquee } from '@/components/ui/cta-with-marquee';
+import { FeatureCard } from '@/shared/ui/grid-feature-cards';
+import { HowItWorks } from '@/shared/ui/how-it-works';
+import { Header } from '@/shared/ui/header';
+import { CTAWithMarquee } from '@/shared/ui/cta-with-marquee';
 
 const features = [
     {
