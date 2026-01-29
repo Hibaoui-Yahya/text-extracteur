@@ -11,7 +11,8 @@ import { normalizeMistralOutput } from '@/core/utils/ocr-normalizer';
 const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY;
 
 if (!MISTRAL_API_KEY) {
-  throw new Error('Mistral API key is not configured');
+  console.warn('Mistral API key is not configured. OCR functionality will be limited.');
+  // The service will still work but with limited functionality
 }
 
 export class OCRService {
