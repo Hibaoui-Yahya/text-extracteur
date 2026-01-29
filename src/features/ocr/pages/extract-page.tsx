@@ -9,7 +9,6 @@ import {
   CloseCircle,
   Copy,
   TickCircle,
-  Circle,
 } from "iconsax-react";
 import { ALLOWED_FILE_TYPES } from "@/shared/constants/file-constants";
 import { validateFile } from "@/core/utils/file-validation";
