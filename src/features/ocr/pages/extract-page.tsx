@@ -29,8 +29,6 @@ export default function ExtractPage() {
   const [showResults, setShowResults] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-import { ALLOWED_FILE_TYPES } from "@/shared/constants/file-constants";
-
   const ALLOWED_TYPES = ALLOWED_FILE_TYPES;
 
   const validateFileWrapper = (selectedFile: File): boolean => {
