@@ -11,34 +11,34 @@ import { CTAWithMarquee } from '@/shared/ui/cta-with-marquee';
 
 const features = [
     {
-        title: "AI-Powered OCR",
+        title: "AI-Powered OCR with Mistral",
         icon: Scan,
-        description: "Advanced ConqrOCR vision model extracts text with high accuracy from any document.",
+        description: "Advanced Mistral OCR (mistral-ocr-2512) with 94.9% accuracy for universal document processing.",
     },
     {
-        title: "Any Document",
+        title: "Smart Document Classification",
         icon: FileText,
-        description: "CVs, invoices, contracts, manuals, books, receipts, forms and more.",
+        description: "Automatically detects 9 document types: IDs, CVs, invoices, contracts, forms, certificates, bank statements, medical records.",
     },
     {
-        title: "Multi-Language",
+        title: "Structured Data Extraction",
         icon: Globe,
-        description: "Preserves original languages, special characters, and formatting exactly.",
+        description: "Extracts key fields with evidence tracking - never hallucinates, preserves exact text and formatting.",
     },
     {
-        title: "Instant Results",
+        title: "Complete Document Model",
         icon: Zap,
-        description: "Get structured, well-formatted text extracted in just seconds.",
+        description: "Full layout preservation with headings, tables, lists, and reading order - not just raw text.",
     },
     {
-        title: "Privacy First",
+        title: "Zero Storage Architecture",
         icon: Shield,
-        description: "Your documents are processed securely. No data is ever stored.",
+        description: "In-memory processing only - your documents are never stored, logged, or persisted anywhere.",
     },
     {
-        title: "Easy Export",
+        title: "Quality Assessment",
         icon: Copy,
-        description: "Copy extracted text with one click, ready to use anywhere.",
+        description: "Automatic confidence scoring and review recommendations with comprehensive warnings system.",
     },
 ];
 
@@ -85,9 +85,9 @@ export default function HeroSection() {
 
                 {/* Badge */}
                 <AnimatedContainer delay={0.1} className="relative z-10 flex items-center gap-2 border border-[#35AEF3]/30 bg-gray-800/50 backdrop-blur-sm hover:border-[#35AEF3]/50 rounded-full w-max mx-auto px-4 py-2 mt-16 md:mt-12 transition-colors">
-                    <span className="text-gray-300">Powered by ConqrOCR</span>
+                    <span className="text-gray-300">🤖 Powered by Mistral OCR 2512</span>
                     <Link href="/extract" className="flex items-center gap-1 font-medium text-[#35AEF3]">
-                        <span>Try it</span>
+                        <span>Try it now</span>
                         <ArrowRight className="w-4 h-4" />
                     </Link>
                 </AnimatedContainer>
@@ -95,15 +95,15 @@ export default function HeroSection() {
                 {/* Headline */}
                 <AnimatedContainer delay={0.2}>
                     <h1 className="relative z-10 text-4xl md:text-6xl lg:text-7xl font-bold max-w-[900px] text-center mx-auto mt-8 px-4">
-                        <span className="text-white">Extract Text from </span>
-                        <span className="bg-gradient-to-r from-[#35AEF3] to-[#4FBEF5] bg-clip-text text-transparent">Any Document</span>
+                        <span className="text-white">Intelligent Document </span>
+                        <span className="bg-gradient-to-r from-[#35AEF3] to-[#4FBEF5] bg-clip-text text-transparent">AI Extraction</span>
                     </h1>
                 </AnimatedContainer>
 
                 {/* Subtitle */}
                 <AnimatedContainer delay={0.3}>
                     <p className="relative z-10 text-base md:text-lg mx-auto max-w-2xl text-center mt-6 text-gray-400 px-4">
-                        Powered by advanced AI, our OCR engine extracts and structures text from PDFs, images, scanned documents, and more. Fast, accurate, and privacy-focused.
+                        Advanced Mistral OCR with smart classification, structured extraction, and zero-storage architecture. Process IDs, CVs, invoices, contracts, and more with 94.9% accuracy.
                     </p>
                 </AnimatedContainer>
 
@@ -113,14 +113,14 @@ export default function HeroSection() {
                         href="/extract"
                         className="flex items-center gap-2 bg-[#35AEF3] hover:bg-[#4FBEF5] text-white px-8 py-4 rounded-full font-medium transition shadow-lg shadow-[#35AEF3]/25"
                     >
-                        Start Extracting
+                        🤖 Try Mistral OCR
                         <ArrowRight className="w-5 h-5" />
                     </Link>
                     <Link
                         href="#features"
                         className="flex items-center gap-2 border border-gray-700 bg-gray-800/50 hover:bg-gray-800 rounded-full px-8 py-4 text-gray-300 font-medium transition"
                     >
-                        <span>Learn More</span>
+                        <span>See All Features</span>
                     </Link>
                 </AnimatedContainer>
 
@@ -149,9 +149,9 @@ export default function HeroSection() {
                                 animate={{ opacity: [0.7, 1, 0.7] }}
                                 transition={{ duration: 2, repeat: Infinity }}
                             >
-                                Drop your document here
+                                Smart Document Processing
                             </motion.p>
-                            <p className="text-gray-500 text-sm mt-2">PDF, PNG, JPG, WEBP • Max 20MB</p>
+                            <p className="text-gray-500 text-sm mt-2">PDF, PNG, JPG, WEBP • Max 50MB • Mistral OCR 2512</p>
 
                             {/* Animated Button */}
                             <motion.div
@@ -175,10 +175,10 @@ export default function HeroSection() {
                 <div className="mx-auto w-full max-w-5xl space-y-8 px-4">
                     <AnimatedContainer className="mx-auto max-w-3xl text-center">
                         <h2 className="text-3xl font-bold tracking-wide text-balance md:text-4xl lg:text-5xl xl:font-extrabold text-white">
-                            Powerful Features
+                            🤖 Advanced OCR Features
                         </h2>
                         <p className="text-gray-400 mt-4 text-sm tracking-wide text-balance md:text-base">
-                            Everything you need to extract text from documents with precision and speed.
+                            Mistral OCR 2512 with smart classification, structured extraction, and zero-storage processing.
                         </p>
                     </AnimatedContainer>
 

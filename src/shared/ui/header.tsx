@@ -1,10 +1,10 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
-import { useScroll } from '@/components/ui/use-scroll';
+import { Button, buttonVariants } from '@/shared/ui/button';
+import { cn } from '@/core/utils';
+import { MenuToggleIcon } from '@/shared/ui/menu-toggle-icon';
+import { useScroll } from '@/shared/ui/use-scroll';
 import { createPortal } from 'react-dom';
 import { ArrowRight } from 'lucide-react';
 

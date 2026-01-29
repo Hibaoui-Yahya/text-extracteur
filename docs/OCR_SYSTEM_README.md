@@ -2,15 +2,17 @@
 
 ## 🎯 Overview
 
-A **production-ready OCR system** built with **Mistral OCR API** that implements:
+A **production-ready OCR system** built with **Mistral OCR 2512** (latest model) that implements:
 
-- ✅ **Universal document support** (PDF, PNG, JPG, WEBP)
-- ✅ **Automatic document type detection** (9 supported types)
-- ✅ **Strict structured extraction** with evidence tracking
-- ✅ **Full layout & formatting preservation**
-- ✅ **Zero data storage** - in-memory processing only
-- ✅ **Comprehensive quality assessment**
-- ✅ **User-friendly results interface**
+- ✅ **Universal document support** (PDF, PNG, JPG, WEBP up to 50MB)
+- ✅ **Automatic document type detection** (9 supported types with smart classification)
+- ✅ **Strict structured extraction** with evidence tracking (never hallucinates)
+- ✅ **Full layout & formatting preservation** (headings, tables, lists, reading order)
+- ✅ **Zero data storage** - in-memory processing only (privacy-first architecture)
+- ✅ **Comprehensive quality assessment** (confidence scoring, review recommendations)
+- ✅ **User-friendly results interface** (3 views: Plain Text, Structured JSON, Document Model)
+- ✅ **Progress tracking** (multi-stage processing indicator)
+- ✅ **Mistral OCR 2512** - Latest model with 94.9% accuracy
 
 ## 🚀 Features
 
@@ -544,6 +546,36 @@ For issues or questions:
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
 - [JSON Schema Validation](https://json-schema.org/)
 
+## 🎨 UI/UX Enhancements
+
+### Landing Page Improvements
+- **Updated branding**: "🤖 Powered by Mistral OCR 2512" badge
+- **New headline**: "Intelligent Document AI Extraction"
+- **Enhanced features**: Updated feature descriptions highlighting new capabilities
+- **Improved CTA**: "🤖 Try Mistral OCR" button with emoji
+- **Progress indicators**: Multi-stage processing visualization
+
+### Extraction Tool Enhancements
+- **Processing status panel**: Shows real-time progress with animated indicators
+- **Three processing stages**: Upload Complete → OCR Processing → Structuring Data
+- **Animated progress**: Visual feedback with spinning icons and status updates
+- **Enhanced button**: "🤖 Extract with Mistral OCR" with model version
+- **Improved error handling**: Better error messages and validation
+
+### Results Interface
+- **Three result tabs**: Plain Text, Structured JSON, Document Model
+- **Quality warnings**: Visual indicators for documents needing review
+- **Action buttons**: Copy Text, Copy JSON, Download .txt, Download .json
+- **Processing metrics**: Confidence scores, document type, page count
+- **Responsive design**: Mobile-friendly, accessible interface
+
+### Visual Improvements
+- **Animated icons**: Smooth animations throughout the interface
+- **Color coding**: Green for success, yellow for warnings, blue for info
+- **Progress indicators**: Animated spinners and status bars
+- **Hover effects**: Interactive elements with visual feedback
+- **Consistent styling**: Unified design language across all components
+
 ## 📝 Conclusion
 
 Text Extracteur provides a **complete, production-ready OCR system** that prioritizes:
@@ -553,7 +585,10 @@ Text Extracteur provides a **complete, production-ready OCR system** that priori
 ✅ **Trust** - Comprehensive quality assessment
 ✅ **Usability** - User-friendly interface with multiple views
 ✅ **Extensibility** - Modular architecture for future growth
+✅ **Modern UI** - Animated, responsive, accessible interface
+✅ **Progress Tracking** - Real-time processing feedback
+✅ **Latest Technology** - Mistral OCR 2512 integration
 
-The system is built on modern web technologies and follows best practices for security, performance, and maintainability. Whether processing invoices, contracts, IDs, or any other documents, Text Extracteur delivers **accurate, reliable, and privacy-preserving** results.
+The system is built on modern web technologies and follows best practices for security, performance, and maintainability. Whether processing invoices, contracts, IDs, or any other documents, Text Extracteur delivers **accurate, reliable, and privacy-preserving** results with an **intuitive, modern user experience**.
 
 ---

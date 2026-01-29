@@ -9,6 +9,7 @@ import {
   CloseCircle,
   Copy,
   TickCircle,
+  Circle,
 } from "iconsax-react";
 import { ALLOWED_FILE_TYPES } from "@/shared/constants/file-constants";
 import { validateFile } from "@/core/utils/file-validation";
@@ -516,6 +517,54 @@ import { ALLOWED_FILE_TYPES } from "@/shared/constants/file-constants";
           </div>
         )}
 
+        {/* Processing Status */}
+        {isLoading && (
+          <section className="mb-6">
+            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center">
+                      <svg className="animate-spin h-6 w-6 text-[#35AEF3]" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#35AEF3] rounded-full animate-ping"></div>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Processing Document</h3>
+                    <p className="text-gray-400 text-sm">Using Mistral OCR 2512</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#35AEF3] animate-pulse"></div>
+                  <span className="text-sm text-gray-400">In progress...</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-2 text-green-400">
+                    <CheckCircle className="w-3 h-3" />
+                    <span>Upload Complete</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-blue-400">
+                    <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>OCR Processing</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Circle className="w-3 h-3" />
+                    <span>Structuring Data</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Extract Button */}
         <section className="mb-8">
           <button
@@ -536,10 +585,12 @@ import { ALLOWED_FILE_TYPES } from "@/shared/constants/file-constants";
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Extracting text...
+                Extracting with Mistral OCR 2512...
               </span>
             ) : (
-              "Extract Text"
+              <span className="inline-flex items-center gap-2">
+                🤖 Extract with Mistral OCR
+              </span>
             )}
           </button>
         </section>

@@ -6,6 +6,7 @@
 const MISTRAL_OCR_ENDPOINT = "https://api.mistral.ai/v1/ocr";
 const MISTRAL_TEXT_MODEL = "mistral-large-latest";
 const MISTRAL_CHAT_ENDPOINT = "https://api.mistral.ai/v1/chat/completions";
+const MISTRAL_OCR_MODEL = "mistral-ocr-2512"; // Latest OCR model
 
 const TEXT_STRUCTURE_PROMPT = `You are a text formatting assistant.
 
