@@ -138,7 +138,11 @@ export async function extractTextFromImage(
 
         return {
             success: true,
-            text: cleanMarkdownOutput(extractedText),
+            text: JSON.stringify({
+                pages: data.pages,
+                model: data.model,
+                usage_info: data.usage_info,
+            }),
         };
     } catch (error) {
         return {
@@ -212,7 +216,11 @@ export async function extractTextFromPdfWithOCR(
 
         return {
             success: true,
-            text: cleanMarkdownOutput(extractedText),
+            text: JSON.stringify({
+                pages: data.pages,
+                model: data.model,
+                usage_info: data.usage_info,
+            }),
             pageCount: data.pages.length,
         } as MistralOCRResponse & { pageCount?: number };
     } catch (error) {
