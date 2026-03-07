@@ -363,38 +363,48 @@ export async function verifyWithVision(
                         content: [
                             {
                                 type: "text",
-                                text: `You are an expert multilingual document transcription assistant. Your task: look at the attached image and produce a COMPLETE, ACCURATE transcription of ALL visible text.
+                                text: `You are a text-only transcription tool. Read the image and output ONLY the actual printed/written text. Nothing else.
 
-IGNORE the OCR text below — it is only a rough starting point. Instead, READ THE IMAGE DIRECTLY and transcribe everything you see.
+WHAT TO DO:
+- Read every word visible in the image
+- Output them preserving the original layout and reading order
+- For bilingual text (e.g. French + Arabic on same line), write both on the same line separated by " / "
+- Use a markdown table ONLY if the document itself is a table or form with clear field-value pairs
+- Arabic: write in Arabic script, preserve diacritics if visible
+- French: preserve accents (é, è, ç, à)
+- Numbers/dates/IDs: copy exactly as printed
 
-## OUTPUT FORMAT
-For each text element in the image, output it on its own line. For bilingual documents (e.g. French + Arabic), show BOTH languages side by side or on consecutive lines, like:
+WHAT TO NEVER DO:
+- NEVER describe what you see (no "Stamp Text:", "Flags/Symbols:", "Other visible text:", "bottom left:", etc.)
+- NEVER add bullet points listing field names separately from their values
+- NEVER mention colors, positions, photos, logos, flags, or visual elements
+- NEVER add section headers like "Header:", "Body:", "Footer:" that don't exist in the document
+- NEVER add explanatory text or commentary
+- NEVER use bullet points (●) to list text — just write the text naturally
+- NEVER wrap output in code blocks
+- NEVER include image references like ![img](...)
+- NEVER output anything that is not actual readable text in the image
 
-**French label** / **Arabic label**
-Value
+EXAMPLE — for a Moroccan ID card, output like this:
+ROYAUME DU MAROC / المملكة المغربية
+CARTE NATIONALE D'IDENTITE / البطاقة الوطنية للتعريف
 
-For ID cards, official documents, forms — use a structured format:
-| Field | Value |
-|-------|-------|
-| ... | ... |
+EL ALAMI / العلمي
+ZAINEB / زينب
+Née le 05/12/1983 / مزدادة بتاريخ
+à OUARZAZATE / ب ورزازات
+U1234567
+Valable jusqu'au 22/07/2029 / صالحة إلى غاية
 
-## RULES
-1. Transcribe EVERY piece of visible text — headers, labels, values, stamps, watermarks, small print
-2. For Arabic text: write it in Arabic script exactly as shown. Include all diacritics/tashkeel if visible. Arabic MUST appear in your output.
-3. For French text: preserve accents (é, è, ç, à, etc.) and exact spelling
-4. For mixed Arabic+French documents: show BOTH versions of each label (e.g. "Nom / الاسم")
-5. Numbers, dates, ID numbers: transcribe exactly as printed (e.g. "05/12/1983", "U1234567")
-6. Decorative, calligraphic, or stylized text: transcribe the actual words, not describe the style
-7. Stamps, seals, signatures: transcribe any readable text within them
-8. Do NOT describe the image — only transcribe text
-9. Do NOT add any text that is not visible
-10. Do NOT wrap output in code blocks
-11. Do NOT include image references
+NOT like this (WRONG):
+❌ "Stamp Text (bottom left): ..."
+❌ "Flags/Symbols: ● Moroccan flag"
+❌ "Other visible text: ● الاسم الشخصي"
 
-## OCR STARTING POINT (may be incomplete or wrong):
+OCR STARTING POINT (use only as reference, may be wrong/incomplete):
 ${ocrMarkdown}
 
-Now look at the image and produce the COMPLETE transcription with ALL text in ALL languages.`,
+Now output ONLY the text from the image. No descriptions. No commentary. Just text.`,
                             },
                             {
                                 type: "image_url",
