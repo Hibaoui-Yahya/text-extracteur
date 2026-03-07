@@ -18,7 +18,7 @@ import {
   ShieldTick,
 } from "iconsax-react";
 import { validateFile } from "@/core/utils/file-validation";
-import { ExtractHeader } from "@/shared/ui/extract-header";
+import Link from "next/link";
 
 interface ExtractResponse {
   markdown: string;
@@ -418,8 +418,6 @@ export default function ExtractPage() {
         <div className="absolute top-[60%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#35AEF3]/[0.03] blur-[80px]" />
       </div>
 
-      <ExtractHeader />
-
       <main
         className={`relative z-10 mx-auto px-5 py-10 transition-all duration-500 ${
           hasResults ? "max-w-6xl" : "max-w-3xl"
@@ -429,15 +427,16 @@ export default function ExtractPage() {
         <header
           className={`text-center transition-all duration-500 ${hasResults ? "mb-6" : "mb-12"}`}
         >
-          <div
-            className={`inline-flex items-center justify-center transition-all duration-500 ${hasResults ? "mb-2" : "mb-4"}`}
+          <Link
+            href="/"
+            className={`inline-flex items-center justify-center transition-all duration-500 hover:opacity-100 ${hasResults ? "mb-2" : "mb-4"}`}
           >
             <img
               src="/ConqrOCR.png"
               alt="ConqrOCR"
-              className={`object-contain opacity-90 transition-all duration-500 ${hasResults ? "h-9" : "h-14"}`}
+              className={`object-contain opacity-90 hover:opacity-100 transition-all duration-500 ${hasResults ? "h-9" : "h-14"}`}
             />
-          </div>
+          </Link>
           <h1
             className={`font-extrabold tracking-tight transition-all duration-500 ${hasResults ? "text-lg mb-0 text-white" : "text-3xl md:text-4xl mb-3"}`}
           >
