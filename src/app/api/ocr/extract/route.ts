@@ -17,26 +17,54 @@ const ALLOWED_TYPES = [
   "image/webp",
 ];
 
+const ALLOWED_ORIGINS = [
+  "https://app.conqrocr.com",
+  "https://conqrocr-production.up.railway.app",
+  "http://localhost:3000",
+];
+
+function corsHeaders(request: NextRequest) {
+  const origin = request.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    "Cache-Control": "no-store",
+  };
+}
+
+// CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders(request),
+  });
+}
+
 export async function POST(request: NextRequest) {
+  const headers = corsHeaders(request);
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400, headers });
     }
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "File too large (max 50MB)" },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
         { error: `Unsupported file type: ${file.type}` },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
 
@@ -56,7 +84,7 @@ export async function POST(request: NextRequest) {
     if (!result.success || !result.text) {
       return NextResponse.json(
         { error: result.error || "OCR processing failed" },
-        { status: 500 }
+        { status: 500, headers }
       );
     }
 
@@ -66,16 +94,14 @@ export async function POST(request: NextRequest) {
       .map((page: { index: number; markdown: string }) => page.markdown)
       .join("\n\n---\n\n");
 
-    // Strip image references — Mistral OCR returns ![img](img-0.jpeg) etc.
-    // that point to non-existent files. We only want text.
+    // Strip image references
     markdown = markdown
-      .replace(/!\[[^\]]*\]\([^)]+\)/g, "")    // ![alt](url)
-      .replace(/!\[[^\]]*\]\[[^\]]*\]/g, "")    // ![alt][ref]
-      .replace(/<img[^>]*>/gi, "")               // <img> tags
-      .replace(/\n{3,}/g, "\n\n");               // clean up extra blank lines
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+      .replace(/!\[[^\]]*\]\[[^\]]*\]/g, "")
+      .replace(/<img[^>]*>/gi, "")
+      .replace(/\n{3,}/g, "\n\n");
 
     // Stage 2: Vision verification (images only)
-    // Sends the original image + OCR output to a vision model to correct errors
     let verified = false;
     if (isImage && markdown.trim().length > 0) {
       const corrected = await verifyWithVision(base64, file.type, markdown);
@@ -92,15 +118,13 @@ export async function POST(request: NextRequest) {
         processing_time_ms: Date.now() - startTime,
         verified,
       },
-      {
-        headers: { "Cache-Control": "no-store" },
-      }
+      { headers }
     );
   } catch (error) {
     console.error("OCR API error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
+      { status: 500, headers }
     );
   }
 }

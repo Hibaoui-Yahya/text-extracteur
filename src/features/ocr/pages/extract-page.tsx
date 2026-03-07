@@ -317,7 +317,11 @@ export default function ExtractPage() {
         verifyTimer = setTimeout(() => setLoadingStage("verifying"), 5000);
       }
 
-      const response = await fetch("/api/ocr/extract", {
+      const apiUrl = process.env.NEXT_PUBLIC_OCR_API_URL
+        ? `${process.env.NEXT_PUBLIC_OCR_API_URL}/api/ocr/extract`
+        : "/api/ocr/extract";
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         body: formData,
       });
@@ -399,11 +403,13 @@ export default function ExtractPage() {
   const hasResults = result !== null || isLoading;
 
   return (
-    <div className="grain min-h-screen bg-[var(--color-background)]">
-      {/* Ambient background */}
+    <div className="grain min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+      {/* Landing-page-style ambient background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-[var(--color-accent)]/[0.04] blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[10%] w-[400px] h-[400px] rounded-full bg-[var(--color-accent)]/[0.03] blur-[100px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#35AEF3]/10 via-transparent to-transparent" />
+        <div className="absolute top-[10%] left-[15%] w-[500px] h-[500px] rounded-full bg-[#35AEF3]/[0.06] blur-[120px]" />
+        <div className="absolute bottom-[5%] right-[10%] w-[400px] h-[400px] rounded-full bg-[#35AEF3]/[0.04] blur-[100px]" />
+        <div className="absolute top-[60%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#35AEF3]/[0.03] blur-[80px]" />
       </div>
 
       <ExtractHeader />
@@ -415,27 +421,28 @@ export default function ExtractPage() {
       >
         {/* Header — compact when results visible */}
         <header
-          className={`text-center transition-all duration-500 ${hasResults ? "mb-8" : "mb-14"}`}
+          className={`text-center transition-all duration-500 ${hasResults ? "mb-6" : "mb-12"}`}
         >
           <div
-            className={`inline-flex items-center justify-center transition-all duration-500 ${hasResults ? "mb-3" : "mb-5"}`}
+            className={`inline-flex items-center justify-center transition-all duration-500 ${hasResults ? "mb-2" : "mb-4"}`}
           >
             <img
               src="/Conqrai_logo.svg"
               alt="ConqrAI"
-              className={`object-contain opacity-90 transition-all duration-500 ${hasResults ? "h-10" : "h-16"}`}
+              className={`object-contain opacity-90 transition-all duration-500 ${hasResults ? "h-9" : "h-14"}`}
             />
           </div>
           <h1
-            className={`font-extrabold tracking-tight text-[var(--color-text-primary)] transition-all duration-500 ${hasResults ? "text-xl mb-1" : "text-3xl md:text-4xl mb-3"}`}
+            className={`font-extrabold tracking-tight transition-all duration-500 ${hasResults ? "text-lg mb-0 text-white" : "text-3xl md:text-4xl mb-3"}`}
           >
-            Smart Document Extraction
+            <span className="text-white">Smart Document </span>
+            <span className="bg-gradient-to-r from-[#35AEF3] to-[#4FBEF5] bg-clip-text text-transparent">Extraction</span>
           </h1>
           {!hasResults && (
-            <p className="text-[var(--color-text-secondary)] text-base max-w-md mx-auto leading-relaxed">
+            <p className="text-gray-400 text-base max-w-md mx-auto leading-relaxed mt-2">
               Tables, lists, any language, any layout.
               <br />
-              <span className="text-[var(--color-text-muted)]">
+              <span className="text-gray-500">
                 One result, perfectly formatted.
               </span>
             </p>
@@ -452,11 +459,11 @@ export default function ExtractPage() {
               onDragLeave={handleDragLeave}
               className={`
                 relative cursor-pointer rounded-2xl border-2 border-dashed
-                transition-all duration-300 ease-out
+                transition-all duration-300 ease-out backdrop-blur-sm
                 ${
                   isDragging
-                    ? "upload-zone-active bg-[var(--color-accent-muted)] scale-[1.01]"
-                    : "border-[var(--color-border-subtle)] hover:border-[var(--color-border-default)] bg-[var(--color-surface)]/60 hover:bg-[var(--color-surface)]"
+                    ? "upload-zone-active bg-[#35AEF3]/10 scale-[1.01]"
+                    : "border-gray-700 hover:border-[#35AEF3]/50 bg-gray-900/50 hover:bg-gray-900/70"
                 }
                 ${file ? "p-6" : "p-10 md:p-14"}
               `}
@@ -473,7 +480,7 @@ export default function ExtractPage() {
                 <div className="flex items-center gap-4">
                   {/* Thumbnail preview */}
                   {previewUrl && isImage && (
-                    <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden border border-[var(--color-border-subtle)] bg-[var(--color-surface-overlay)]">
+                    <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden border border-gray-700 bg-gray-800">
                       <img
                         src={previewUrl}
                         alt="Preview"
@@ -482,15 +489,15 @@ export default function ExtractPage() {
                     </div>
                   )}
                   {file.type === "application/pdf" && (
-                    <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface-overlay)]">
+                    <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded-lg border border-gray-700 bg-gray-800">
                       {getFileIcon()}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[var(--color-text-primary)] font-semibold truncate">
+                    <p className="text-white font-semibold truncate">
                       {file.name}
                     </p>
-                    <p className="text-[var(--color-text-muted)] text-sm mt-0.5">
+                    <p className="text-gray-500 text-sm mt-0.5">
                       {formatFileSize(file.size)}
                     </p>
                   </div>
@@ -499,7 +506,7 @@ export default function ExtractPage() {
                       e.stopPropagation();
                       handleClear();
                     }}
-                    className="shrink-0 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors p-2 rounded-lg hover:bg-[var(--color-surface-overlay)]"
+                    className="shrink-0 text-gray-500 hover:text-gray-300 transition-colors p-2 rounded-lg hover:bg-gray-800"
                     title="Remove file"
                   >
                     <CloseCircle size={20} variant="Bold" />
@@ -507,38 +514,38 @@ export default function ExtractPage() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-5">
-                  <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-surface-overlay)] border border-[var(--color-border-subtle)]">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#35AEF3]/10 border border-[#35AEF3]/20">
                     <DocumentUpload
-                      size={28}
-                      color="var(--color-text-muted)"
+                      size={30}
+                      color="#35AEF3"
                       variant="Bold"
                     />
                   </div>
                   <div className="text-center">
-                    <p className="text-[var(--color-text-primary)] font-semibold text-lg">
+                    <p className="text-white font-semibold text-lg">
                       Drop a document or{" "}
-                      <span className="text-[var(--color-accent)]">browse</span>
+                      <span className="text-[#35AEF3]">browse</span>
                     </p>
-                    <p className="text-[var(--color-text-muted)] text-sm mt-2.5">
-                      <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
+                    <p className="text-gray-500 text-sm mt-2.5">
+                      <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-xs font-mono text-gray-400 border border-gray-700">
                         Ctrl
                       </kbd>{" "}
-                      <span className="text-[var(--color-text-muted)]">+</span>{" "}
-                      <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
+                      <span className="text-gray-600">+</span>{" "}
+                      <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-xs font-mono text-gray-400 border border-gray-700">
                         V
                       </kbd>{" "}
                       to paste an image from clipboard
                     </p>
-                    <div className="flex items-center justify-center gap-2 mt-3">
+                    <div className="flex items-center justify-center gap-2 mt-4">
                       {["PDF", "PNG", "JPG", "WebP"].map((fmt) => (
                         <span
                           key={fmt}
-                          className="text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]"
+                          className="text-[10px] font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full bg-gray-800/80 text-gray-400 border border-gray-700"
                         >
                           {fmt}
                         </span>
                       ))}
-                      <span className="text-[var(--color-text-muted)] text-xs ml-1">
+                      <span className="text-gray-500 text-xs ml-1">
                         up to 50 MB
                       </span>
                     </div>
@@ -551,15 +558,15 @@ export default function ExtractPage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-[var(--color-error)]/[0.08] border border-[var(--color-error)]/20">
+          <div className="mb-6 p-4 rounded-xl bg-red-500/[0.08] border border-red-500/20 backdrop-blur-sm">
             <div className="flex items-start gap-3">
               <CloseCircle
                 size={18}
-                color="var(--color-error)"
+                color="#f87171"
                 variant="Bold"
                 className="shrink-0 mt-0.5"
               />
-              <p className="text-[var(--color-error)] text-sm">{error}</p>
+              <p className="text-red-400 text-sm">{error}</p>
             </div>
           </div>
         )}
@@ -571,16 +578,16 @@ export default function ExtractPage() {
               onClick={handleExtract}
               disabled={!file || isLoading}
               className={`
-                w-full py-3.5 px-6 rounded-xl font-semibold text-base
+                w-full py-4 px-6 rounded-full font-semibold text-base
                 transition-all duration-300 ease-out
                 ${
                   file && !isLoading
-                    ? "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white shadow-[0_0_24px_var(--color-accent-glow)] hover:shadow-[0_0_32px_var(--color-accent-glow)] hover:scale-[1.01] active:scale-[0.99]"
-                    : "bg-[var(--color-surface-raised)] text-[var(--color-text-muted)] cursor-not-allowed border border-[var(--color-border-subtle)]"
+                    ? "bg-[#35AEF3] hover:bg-[#4FBEF5] text-white shadow-lg shadow-[#35AEF3]/25 hover:shadow-xl hover:shadow-[#35AEF3]/30 hover:scale-[1.01] active:scale-[0.99]"
+                    : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
                 }
               `}
             >
-              Extract
+              Extract Document
             </button>
           </section>
         )}
@@ -589,29 +596,32 @@ export default function ExtractPage() {
         {hasResults && (
           <section ref={resultRef} className="scroll-mt-6 result-enter">
             {/* Split layout: Preview | Content */}
-            <div className="flex flex-col lg:flex-row gap-5">
+            <div className="flex flex-col lg:flex-row gap-6">
               {/* Left: Document Preview */}
               {previewUrl && showPreview && (
                 <div className="lg:w-[380px] shrink-0">
                   <div className="lg:sticky lg:top-20">
-                    <div className="flex items-center justify-between mb-2 px-1">
-                      <span className="text-[var(--color-text-muted)] text-xs font-medium uppercase tracking-wider">
-                        Original
-                      </span>
+                    <div className="flex items-center justify-between mb-3 px-1">
+                      <div className="flex items-center gap-2">
+                        <Gallery size={14} color="#9ca3af" />
+                        <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+                          Original
+                        </span>
+                      </div>
                       <button
                         onClick={() => setShowPreview(false)}
-                        className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors p-1 rounded"
+                        className="text-gray-500 hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-gray-800/50"
                         title="Hide preview"
                       >
                         <EyeSlash size={14} />
                       </button>
                     </div>
-                    <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 overflow-hidden">
+                    <div className="rounded-2xl border border-gray-800 bg-gray-900/70 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20">
                       {isImage ? (
                         <img
                           src={previewUrl}
                           alt="Document preview"
-                          className="w-full h-auto max-h-[80vh] object-contain bg-[var(--color-surface-overlay)]"
+                          className="w-full h-auto max-h-[80vh] object-contain bg-gray-800/50"
                         />
                       ) : (
                         <embed
