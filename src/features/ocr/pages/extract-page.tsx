@@ -756,12 +756,12 @@ export default function ExtractPage() {
                         >
                           {copied ? (
                             <>
-                              <TickCircle size={16} variant="Bold" />
+                              <TickCircle size={16} variant="Bold" color="#34d399" />
                               Copied
                             </>
                           ) : (
                             <>
-                              <Copy size={16} variant="Bold" />
+                              <Copy size={16} variant="Bold" color="currentColor" />
                               Copy
                             </>
                           )}
@@ -772,7 +772,7 @@ export default function ExtractPage() {
                             bg-gray-800/50 hover:bg-gray-800 text-gray-400 hover:text-white
                             border border-gray-700"
                         >
-                          <DocumentDownload size={16} variant="Bold" />
+                          <DocumentDownload size={16} variant="Bold" color="currentColor" />
                           Download
                         </button>
                         <button
@@ -781,7 +781,7 @@ export default function ExtractPage() {
                             bg-[#35AEF3]/10 hover:bg-[#35AEF3]/20 text-[#35AEF3]
                             border border-[#35AEF3]/20 hover:border-[#35AEF3]/40"
                         >
-                          <ArrowRotateLeft size={16} variant="Bold" />
+                          <ArrowRotateLeft size={16} variant="Bold" color="currentColor" />
                           New
                         </button>
                       </div>
