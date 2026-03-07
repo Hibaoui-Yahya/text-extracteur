@@ -335,6 +335,82 @@ export async function extractTextFromMultipleImages(
 }
 
 /**
+ * Vision-based verification: sends the original image + OCR text to a vision model
+ * to correct OCR errors (wrong chars, broken tables, missing text).
+ * Only used for images — PDFs go through OCR natively and are already high quality.
+ */
+export async function verifyWithVision(
+    imageBase64: string,
+    mimeType: string,
+    ocrMarkdown: string
+): Promise<string> {
+    const apiKey = process.env.MISTRAL_API_KEY;
+    if (!apiKey) return ocrMarkdown;
+
+    try {
+        const response = await fetch(MISTRAL_CHAT_ENDPOINT, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                model: "pixtral-large-latest",
+                messages: [
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: `You are a precise OCR verification assistant. Below is text extracted via OCR from the attached image. Your job is to compare the OCR output against the actual image and fix any errors.
+
+INSTRUCTIONS:
+- Fix wrong characters, misspellings, or garbled text caused by OCR
+- Fix broken table cells, misaligned columns, or missing rows
+- Fix incorrect numbers, dates, currencies, or special characters
+- Preserve ALL original languages exactly as they appear (Arabic, Chinese, French, mixed scripts, etc.)
+- Keep the markdown formatting intact (tables, lists, headings, bold, italic)
+- Do NOT add any content that is not visible in the image
+- Do NOT remove any content that IS visible in the image
+- Do NOT summarize, paraphrase, or rewrite — only correct OCR errors
+- Do NOT wrap your output in code blocks
+
+OCR EXTRACTED TEXT:
+${ocrMarkdown}
+
+Return ONLY the corrected markdown. If the OCR output is already correct, return it unchanged.`,
+                            },
+                            {
+                                type: "image_url",
+                                image_url: `data:${mimeType};base64,${imageBase64}`,
+                            },
+                        ],
+                    },
+                ],
+                max_tokens: 16384,
+            }),
+        });
+
+        if (!response.ok) {
+            console.warn("Vision verification failed, using original OCR output");
+            return ocrMarkdown;
+        }
+
+        const data = await response.json();
+        const corrected = data.choices?.[0]?.message?.content;
+
+        if (!corrected || corrected.trim().length === 0) {
+            return ocrMarkdown;
+        }
+
+        return cleanMarkdownOutput(corrected);
+    } catch (error) {
+        console.warn("Vision verification error:", error);
+        return ocrMarkdown;
+    }
+}
+
+/**
  * Create a fallback Mistral OCR response when API is not available
  */
 function createFallbackMistralResponse(): MistralOCRResponse {

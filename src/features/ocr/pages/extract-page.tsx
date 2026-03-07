@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
@@ -13,6 +13,9 @@ import {
   TickCircle,
   DocumentDownload,
   ArrowRotateLeft,
+  Eye,
+  EyeSlash,
+  ShieldTick,
 } from "iconsax-react";
 import { validateFile } from "@/core/utils/file-validation";
 import { ExtractHeader } from "@/shared/ui/extract-header";
@@ -21,6 +24,7 @@ interface ExtractResponse {
   markdown: string;
   pages: number;
   processing_time_ms: number;
+  verified: boolean;
 }
 
 const markdownComponents: Components = {
@@ -115,8 +119,10 @@ const markdownComponents: Components = {
       className="text-[var(--color-text-primary)] leading-relaxed pl-1 flex gap-2 items-baseline"
       {...props}
     >
-      <span className="text-[var(--color-accent)] text-xs mt-1.5 shrink-0">&#9679;</span>
-      <span>{children}</span>
+      <span className="text-[var(--color-accent)] text-xs mt-1.5 shrink-0">
+        &#9679;
+      </span>
+      <span className="flex-1">{children}</span>
     </li>
   ),
   blockquote: ({ children, ...props }) => (
@@ -131,10 +137,7 @@ const markdownComponents: Components = {
     const isBlock = className?.includes("language-");
     if (isBlock) {
       return (
-        <code
-          className={`block text-sm ${className || ""}`}
-          {...props}
-        >
+        <code className={`block text-sm ${className || ""}`} {...props}>
           {children}
         </code>
       );
@@ -171,7 +174,10 @@ const markdownComponents: Components = {
     </a>
   ),
   strong: ({ children, ...props }) => (
-    <strong className="font-semibold text-[var(--color-text-primary)]" {...props}>
+    <strong
+      className="font-semibold text-[var(--color-text-primary)]"
+      {...props}
+    >
       {children}
     </strong>
   ),
@@ -196,8 +202,27 @@ export default function ExtractPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copyFlash, setCopyFlash] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  const [loadingStage, setLoadingStage] = useState<
+    "ocr" | "verifying" | null
+  >(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLElement>(null);
+
+  // Create a stable preview URL for the uploaded file
+  const previewUrl = useMemo(() => {
+    if (!file) return null;
+    return URL.createObjectURL(file);
+  }, [file]);
+
+  // Clean up object URL
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const isImage = file ? file.type !== "application/pdf" : false;
 
   const validateFileWrapper = (selectedFile: File): boolean => {
     const validation = validateFile(selectedFile);
@@ -276,15 +301,25 @@ export default function ExtractPage() {
     setIsLoading(true);
     setError("");
     setResult(null);
+    setLoadingStage("ocr");
 
     try {
       const formData = new FormData();
       formData.append("file", file);
 
+      // Show "verifying" stage for images after a delay (OCR typically takes a few seconds)
+      const isImg = file.type !== "application/pdf";
+      let verifyTimer: ReturnType<typeof setTimeout> | undefined;
+      if (isImg) {
+        verifyTimer = setTimeout(() => setLoadingStage("verifying"), 5000);
+      }
+
       const response = await fetch("/api/ocr/extract", {
         method: "POST",
         body: formData,
       });
+
+      if (verifyTimer) clearTimeout(verifyTimer);
 
       const data = await response.json();
 
@@ -293,15 +328,17 @@ export default function ExtractPage() {
       }
 
       setResult(data);
-
-      // Scroll to result after render
       setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        resultRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }, 100);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setIsLoading(false);
+      setLoadingStage(null);
     }
   };
 
@@ -333,6 +370,7 @@ export default function ExtractPage() {
     setFile(null);
     setResult(null);
     setError("");
+    setLoadingStage(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -354,6 +392,9 @@ export default function ExtractPage() {
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
 
+  // Whether we're in "results mode" (show split view)
+  const hasResults = result !== null || isLoading;
+
   return (
     <div className="grain min-h-screen bg-[var(--color-background)]">
       {/* Ambient background */}
@@ -364,120 +405,146 @@ export default function ExtractPage() {
 
       <ExtractHeader />
 
-      <main className="relative z-10 mx-auto max-w-3xl px-5 py-10">
-        {/* Header */}
-        <header className="text-center mb-14">
-          <div className="inline-flex items-center justify-center mb-5">
+      <main
+        className={`relative z-10 mx-auto px-5 py-10 transition-all duration-500 ${
+          hasResults ? "max-w-6xl" : "max-w-3xl"
+        }`}
+      >
+        {/* Header — compact when results visible */}
+        <header
+          className={`text-center transition-all duration-500 ${hasResults ? "mb-8" : "mb-14"}`}
+        >
+          <div
+            className={`inline-flex items-center justify-center transition-all duration-500 ${hasResults ? "mb-3" : "mb-5"}`}
+          >
             <img
               src="/Conqrai_logo.svg"
               alt="ConqrAI"
-              className="h-16 object-contain opacity-90"
+              className={`object-contain opacity-90 transition-all duration-500 ${hasResults ? "h-10" : "h-16"}`}
             />
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] mb-3">
+          <h1
+            className={`font-extrabold tracking-tight text-[var(--color-text-primary)] transition-all duration-500 ${hasResults ? "text-xl mb-1" : "text-3xl md:text-4xl mb-3"}`}
+          >
             Smart Document Extraction
           </h1>
-          <p className="text-[var(--color-text-secondary)] text-base max-w-md mx-auto leading-relaxed">
-            Tables, lists, any language, any layout.
-            <br />
-            <span className="text-[var(--color-text-muted)]">
-              One result, perfectly formatted.
-            </span>
-          </p>
+          {!hasResults && (
+            <p className="text-[var(--color-text-secondary)] text-base max-w-md mx-auto leading-relaxed">
+              Tables, lists, any language, any layout.
+              <br />
+              <span className="text-[var(--color-text-muted)]">
+                One result, perfectly formatted.
+              </span>
+            </p>
+          )}
         </header>
 
-        {/* Upload zone */}
-        <section className="mb-8">
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            className={`
-              relative cursor-pointer rounded-2xl border-2 border-dashed
-              transition-all duration-300 ease-out
-              ${
-                isDragging
-                  ? "upload-zone-active bg-[var(--color-accent-muted)] scale-[1.01]"
-                  : "border-[var(--color-border-subtle)] hover:border-[var(--color-border-default)] bg-[var(--color-surface)]/60 hover:bg-[var(--color-surface)]"
-              }
-              ${file ? "p-6" : "p-10 md:p-14"}
-            `}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileChange}
-              accept=".pdf,.png,.jpg,.jpeg,.webp"
-              className="hidden"
-            />
+        {/* Upload zone — compact when results visible */}
+        {!hasResults && (
+          <section className="mb-8">
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              className={`
+                relative cursor-pointer rounded-2xl border-2 border-dashed
+                transition-all duration-300 ease-out
+                ${
+                  isDragging
+                    ? "upload-zone-active bg-[var(--color-accent-muted)] scale-[1.01]"
+                    : "border-[var(--color-border-subtle)] hover:border-[var(--color-border-default)] bg-[var(--color-surface)]/60 hover:bg-[var(--color-surface)]"
+                }
+                ${file ? "p-6" : "p-10 md:p-14"}
+              `}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleFileChange}
+                accept=".pdf,.png,.jpg,.jpeg,.webp"
+                className="hidden"
+              />
 
-            {file ? (
-              <div className="flex items-center gap-4">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-surface-overlay)] border border-[var(--color-border-subtle)]">
-                  {getFileIcon()}
+              {file ? (
+                <div className="flex items-center gap-4">
+                  {/* Thumbnail preview */}
+                  {previewUrl && isImage && (
+                    <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden border border-[var(--color-border-subtle)] bg-[var(--color-surface-overlay)]">
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  {file.type === "application/pdf" && (
+                    <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-surface-overlay)]">
+                      {getFileIcon()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[var(--color-text-primary)] font-semibold truncate">
+                      {file.name}
+                    </p>
+                    <p className="text-[var(--color-text-muted)] text-sm mt-0.5">
+                      {formatFileSize(file.size)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClear();
+                    }}
+                    className="shrink-0 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors p-2 rounded-lg hover:bg-[var(--color-surface-overlay)]"
+                    title="Remove file"
+                  >
+                    <CloseCircle size={20} variant="Bold" />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[var(--color-text-primary)] font-semibold truncate">
-                    {file.name}
-                  </p>
-                  <p className="text-[var(--color-text-muted)] text-sm mt-0.5">
-                    {formatFileSize(file.size)}
-                  </p>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClear();
-                  }}
-                  className="shrink-0 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors p-2 rounded-lg hover:bg-[var(--color-surface-overlay)]"
-                  title="Remove file"
-                >
-                  <CloseCircle size={20} variant="Bold" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-5">
-                <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-surface-overlay)] border border-[var(--color-border-subtle)]">
-                  <DocumentUpload
-                    size={28}
-                    color="var(--color-text-muted)"
-                    variant="Bold"
-                  />
-                </div>
-                <div className="text-center">
-                  <p className="text-[var(--color-text-primary)] font-semibold text-lg">
-                    Drop a document or{" "}
-                    <span className="text-[var(--color-accent)]">browse</span>
-                  </p>
-                  <p className="text-[var(--color-text-muted)] text-sm mt-2.5">
-                    <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
-                      Ctrl
-                    </kbd>{" "}
-                    <span className="text-[var(--color-text-muted)]">+</span>{" "}
-                    <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
-                      V
-                    </kbd>{" "}
-                    to paste an image from clipboard
-                  </p>
-                  <div className="flex items-center justify-center gap-2 mt-3">
-                    {["PDF", "PNG", "JPG", "WebP"].map((fmt) => (
-                      <span
-                        key={fmt}
-                        className="text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]"
-                      >
-                        {fmt}
+              ) : (
+                <div className="flex flex-col items-center gap-5">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-surface-overlay)] border border-[var(--color-border-subtle)]">
+                    <DocumentUpload
+                      size={28}
+                      color="var(--color-text-muted)"
+                      variant="Bold"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[var(--color-text-primary)] font-semibold text-lg">
+                      Drop a document or{" "}
+                      <span className="text-[var(--color-accent)]">browse</span>
+                    </p>
+                    <p className="text-[var(--color-text-muted)] text-sm mt-2.5">
+                      <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
+                        Ctrl
+                      </kbd>{" "}
+                      <span className="text-[var(--color-text-muted)]">+</span>{" "}
+                      <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
+                        V
+                      </kbd>{" "}
+                      to paste an image from clipboard
+                    </p>
+                    <div className="flex items-center justify-center gap-2 mt-3">
+                      {["PDF", "PNG", "JPG", "WebP"].map((fmt) => (
+                        <span
+                          key={fmt}
+                          className="text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]"
+                        >
+                          {fmt}
+                        </span>
+                      ))}
+                      <span className="text-[var(--color-text-muted)] text-xs ml-1">
+                        up to 50 MB
                       </span>
-                    ))}
-                    <span className="text-[var(--color-text-muted)] text-xs ml-1">
-                      up to 50 MB
-                    </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </section>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Error */}
         {error && (
@@ -494,143 +561,228 @@ export default function ExtractPage() {
           </div>
         )}
 
-        {/* Extract Button */}
-        <section className="mb-10">
-          <button
-            onClick={handleExtract}
-            disabled={!file || isLoading}
-            className={`
-              w-full py-3.5 px-6 rounded-xl font-semibold text-base
-              transition-all duration-300 ease-out
-              ${
-                file && !isLoading
-                  ? "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white shadow-[0_0_24px_var(--color-accent-glow)] hover:shadow-[0_0_32px_var(--color-accent-glow)] hover:scale-[1.01] active:scale-[0.99]"
-                  : "bg-[var(--color-surface-raised)] text-[var(--color-text-muted)] cursor-not-allowed border border-[var(--color-border-subtle)]"
-              }
-            `}
-          >
-            {isLoading ? (
-              <span className="inline-flex items-center gap-3">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Extracting...
-              </span>
-            ) : (
-              "Extract"
-            )}
-          </button>
-        </section>
-
-        {/* Loading state */}
-        {isLoading && (
+        {/* Extract Button — only when no results yet */}
+        {!hasResults && (
           <section className="mb-10">
-            <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 overflow-hidden">
-              <div className="loading-shimmer h-1" />
-              <div className="p-6 flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-[var(--color-accent-muted)] flex items-center justify-center">
-                    <div className="w-5 h-5 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin" />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-[var(--color-text-primary)] font-semibold text-sm">
-                    Analyzing document
-                  </p>
-                  <p className="text-[var(--color-text-muted)] text-xs mt-0.5">
-                    Extracting structure, tables, lists, and text across all
-                    languages...
-                  </p>
-                </div>
-              </div>
-            </div>
+            <button
+              onClick={handleExtract}
+              disabled={!file || isLoading}
+              className={`
+                w-full py-3.5 px-6 rounded-xl font-semibold text-base
+                transition-all duration-300 ease-out
+                ${
+                  file && !isLoading
+                    ? "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white shadow-[0_0_24px_var(--color-accent-glow)] hover:shadow-[0_0_32px_var(--color-accent-glow)] hover:scale-[1.01] active:scale-[0.99]"
+                    : "bg-[var(--color-surface-raised)] text-[var(--color-text-muted)] cursor-not-allowed border border-[var(--color-border-subtle)]"
+                }
+              `}
+            >
+              Extract
+            </button>
           </section>
         )}
 
-        {/* Result */}
-        {result && (
-          <section ref={resultRef} className="mb-10 result-enter scroll-mt-6">
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mb-3 px-1">
-              <div className="flex items-center gap-3">
-                <span className="text-[var(--color-text-muted)] text-xs font-medium">
-                  {result.pages} page{result.pages > 1 ? "s" : ""}
-                </span>
-                <span className="w-1 h-1 rounded-full bg-[var(--color-border-default)]" />
-                <span className="text-[var(--color-text-muted)] text-xs">
-                  {result.processing_time_ms}ms
-                </span>
-              </div>
+        {/* ===== PROCESSING + RESULTS AREA ===== */}
+        {hasResults && (
+          <section ref={resultRef} className="scroll-mt-6 result-enter">
+            {/* Split layout: Preview | Content */}
+            <div className="flex flex-col lg:flex-row gap-5">
+              {/* Left: Document Preview */}
+              {previewUrl && showPreview && (
+                <div className="lg:w-[380px] shrink-0">
+                  <div className="lg:sticky lg:top-20">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                      <span className="text-[var(--color-text-muted)] text-xs font-medium uppercase tracking-wider">
+                        Original
+                      </span>
+                      <button
+                        onClick={() => setShowPreview(false)}
+                        className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors p-1 rounded"
+                        title="Hide preview"
+                      >
+                        <EyeSlash size={14} />
+                      </button>
+                    </div>
+                    <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 overflow-hidden">
+                      {isImage ? (
+                        <img
+                          src={previewUrl}
+                          alt="Document preview"
+                          className="w-full h-auto max-h-[80vh] object-contain bg-[var(--color-surface-overlay)]"
+                        />
+                      ) : (
+                        <embed
+                          src={previewUrl}
+                          type="application/pdf"
+                          className="w-full h-[80vh]"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={handleCopy}
-                  className={`
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                    border border-[var(--color-border-subtle)]
-                    ${
-                      copied
-                        ? "bg-[var(--color-success)]/10 border-[var(--color-success)]/30 text-[var(--color-success)]"
-                        : "bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                    }
-                    ${copyFlash ? "copy-flash" : ""}
-                  `}
-                >
-                  {copied ? (
-                    <>
-                      <TickCircle size={14} variant="Bold" />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={14} />
-                      Copy
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={handleDownload}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                    bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
-                    border border-[var(--color-border-subtle)]"
-                >
-                  <DocumentDownload size={14} />
-                  Download
-                </button>
-                <button
-                  onClick={handleNewExtraction}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                    bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
-                    border border-[var(--color-border-subtle)]"
-                >
-                  <ArrowRotateLeft size={14} />
-                  New
-                </button>
-              </div>
-            </div>
+              {/* Right: Results / Loading */}
+              <div className="flex-1 min-w-0">
+                {/* Show preview toggle when hidden */}
+                {!showPreview && previewUrl && (
+                  <button
+                    onClick={() => setShowPreview(true)}
+                    className="mb-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                      bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+                      border border-[var(--color-border-subtle)]"
+                  >
+                    <Eye size={14} />
+                    Show original
+                  </button>
+                )}
 
-            {/* Document viewer */}
-            <div className="document-viewer rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 backdrop-blur-sm overflow-hidden">
-              <div className="p-6 md:p-10">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={markdownComponents}
-                >
-                  {result.markdown}
-                </ReactMarkdown>
+                {/* Loading */}
+                {isLoading && (
+                  <div className="mb-5">
+                    <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 overflow-hidden">
+                      <div className="loading-shimmer h-1" />
+                      <div className="p-5">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-9 h-9 rounded-full bg-[var(--color-accent-muted)] flex items-center justify-center">
+                            <div className="w-4 h-4 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin" />
+                          </div>
+                          <div>
+                            <p className="text-[var(--color-text-primary)] font-semibold text-sm">
+                              {loadingStage === "verifying"
+                                ? "Verifying accuracy..."
+                                : "Extracting text..."}
+                            </p>
+                            <p className="text-[var(--color-text-muted)] text-xs mt-0.5">
+                              {loadingStage === "verifying"
+                                ? "Comparing OCR output against original image"
+                                : "Analyzing structure, tables, and multilingual content"}
+                            </p>
+                          </div>
+                        </div>
+                        {/* Stage indicators */}
+                        <div className="flex items-center gap-4 text-xs pl-1">
+                          <div
+                            className={`flex items-center gap-1.5 ${
+                              loadingStage === "verifying"
+                                ? "text-[var(--color-success)]"
+                                : "text-[var(--color-accent)]"
+                            }`}
+                          >
+                            {loadingStage === "verifying" ? (
+                              <TickCircle size={12} variant="Bold" />
+                            ) : (
+                              <div className="w-3 h-3 rounded-full border-[1.5px] border-[var(--color-accent)] border-t-transparent animate-spin" />
+                            )}
+                            <span>OCR</span>
+                          </div>
+                          {isImage && (
+                            <div
+                              className={`flex items-center gap-1.5 ${
+                                loadingStage === "verifying"
+                                  ? "text-[var(--color-accent)]"
+                                  : "text-[var(--color-text-muted)]"
+                              }`}
+                            >
+                              {loadingStage === "verifying" ? (
+                                <div className="w-3 h-3 rounded-full border-[1.5px] border-[var(--color-accent)] border-t-transparent animate-spin" />
+                              ) : (
+                                <div className="w-3 h-3 rounded-full bg-[var(--color-border-default)]" />
+                              )}
+                              <span>Vision verify</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Results */}
+                {result && (
+                  <div>
+                    {/* Toolbar */}
+                    <div className="flex items-center justify-between mb-3 px-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[var(--color-text-muted)] text-xs font-medium">
+                          {result.pages} page
+                          {result.pages > 1 ? "s" : ""}
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-[var(--color-border-default)]" />
+                        <span className="text-[var(--color-text-muted)] text-xs">
+                          {result.processing_time_ms}ms
+                        </span>
+                        {result.verified && (
+                          <>
+                            <span className="w-1 h-1 rounded-full bg-[var(--color-border-default)]" />
+                            <span className="flex items-center gap-1 text-[var(--color-success)] text-xs font-medium">
+                              <ShieldTick size={12} variant="Bold" />
+                              Verified
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={handleCopy}
+                          className={`
+                            flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                            border border-[var(--color-border-subtle)]
+                            ${
+                              copied
+                                ? "bg-[var(--color-success)]/10 border-[var(--color-success)]/30 text-[var(--color-success)]"
+                                : "bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                            }
+                            ${copyFlash ? "copy-flash" : ""}
+                          `}
+                        >
+                          {copied ? (
+                            <>
+                              <TickCircle size={14} variant="Bold" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={14} />
+                              Copy
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={handleDownload}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                            bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+                            border border-[var(--color-border-subtle)]"
+                        >
+                          <DocumentDownload size={14} />
+                          Download
+                        </button>
+                        <button
+                          onClick={handleNewExtraction}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                            bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+                            border border-[var(--color-border-subtle)]"
+                        >
+                          <ArrowRotateLeft size={14} />
+                          New
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Document viewer */}
+                    <div className="document-viewer rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 backdrop-blur-sm overflow-hidden">
+                      <div className="p-6 md:p-8">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={markdownComponents}
+                        >
+                          {result.markdown}
+                        </ReactMarkdown>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </section>
