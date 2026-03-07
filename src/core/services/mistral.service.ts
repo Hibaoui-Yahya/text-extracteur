@@ -363,28 +363,38 @@ export async function verifyWithVision(
                         content: [
                             {
                                 type: "text",
-                                text: `You are a precise multilingual OCR verification and completion assistant. Below is text extracted via OCR from the attached image. Your job is to compare the OCR output against the actual image, fix errors, and ADD any text that the OCR missed entirely.
+                                text: `You are an expert multilingual document transcription assistant. Your task: look at the attached image and produce a COMPLETE, ACCURATE transcription of ALL visible text.
 
-CRITICAL INSTRUCTIONS:
-- LOOK AT THE IMAGE CAREFULLY and extract ALL visible text, in ALL scripts and languages
-- If the OCR missed entire lines or sections (especially Arabic, Chinese, Hebrew, Hindi, or other non-Latin scripts), YOU MUST ADD THEM
-- Arabic/RTL text: transcribe it exactly as written, right-to-left. Include full diacritics if visible.
-- Calligraphic, handwritten, or decorative text: do your best to transcribe it accurately
-- Fix wrong characters, garbled text, or OCR artifacts
-- Fix broken table cells, misaligned columns, or missing rows
-- Fix incorrect numbers, dates, currencies, or special characters
-- Preserve ALL original languages exactly as they appear
-- Keep markdown formatting (tables, lists, headings, bold, italic)
-- Do NOT add content that is not visible in the image
-- Do NOT remove any content that IS visible in the image
-- Do NOT summarize or rewrite — only correct and complete
-- Do NOT wrap output in code blocks
-- Do NOT include image references like ![img](...)
+IGNORE the OCR text below — it is only a rough starting point. Instead, READ THE IMAGE DIRECTLY and transcribe everything you see.
 
-OCR EXTRACTED TEXT:
+## OUTPUT FORMAT
+For each text element in the image, output it on its own line. For bilingual documents (e.g. French + Arabic), show BOTH languages side by side or on consecutive lines, like:
+
+**French label** / **Arabic label**
+Value
+
+For ID cards, official documents, forms — use a structured format:
+| Field | Value |
+|-------|-------|
+| ... | ... |
+
+## RULES
+1. Transcribe EVERY piece of visible text — headers, labels, values, stamps, watermarks, small print
+2. For Arabic text: write it in Arabic script exactly as shown. Include all diacritics/tashkeel if visible. Arabic MUST appear in your output.
+3. For French text: preserve accents (é, è, ç, à, etc.) and exact spelling
+4. For mixed Arabic+French documents: show BOTH versions of each label (e.g. "Nom / الاسم")
+5. Numbers, dates, ID numbers: transcribe exactly as printed (e.g. "05/12/1983", "U1234567")
+6. Decorative, calligraphic, or stylized text: transcribe the actual words, not describe the style
+7. Stamps, seals, signatures: transcribe any readable text within them
+8. Do NOT describe the image — only transcribe text
+9. Do NOT add any text that is not visible
+10. Do NOT wrap output in code blocks
+11. Do NOT include image references
+
+## OCR STARTING POINT (may be incomplete or wrong):
 ${ocrMarkdown}
 
-Return ONLY the corrected and completed markdown with ALL text from the image.`,
+Now look at the image and produce the COMPLETE transcription with ALL text in ALL languages.`,
                             },
                             {
                                 type: "image_url",

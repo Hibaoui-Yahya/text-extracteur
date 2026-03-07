@@ -17,6 +17,15 @@ const ALLOWED_TYPES = [
   "image/webp",
 ];
 
+function stripImageRefs(md: string): string {
+  return md
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    .replace(/!\[[^\]]*\]\[[^\]]*\]/g, "")
+    .replace(/<img[^>]*>/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 const ALLOWED_ORIGINS = [
   "https://app.conqrocr.com",
   "https://conqrocr-production.up.railway.app",
@@ -95,18 +104,14 @@ export async function POST(request: NextRequest) {
       .join("\n\n---\n\n");
 
     // Strip image references
-    markdown = markdown
-      .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-      .replace(/!\[[^\]]*\]\[[^\]]*\]/g, "")
-      .replace(/<img[^>]*>/gi, "")
-      .replace(/\n{3,}/g, "\n\n");
+    markdown = stripImageRefs(markdown);
 
-    // Stage 2: Vision verification (images only)
+    // Stage 2: Vision verification (images only — PDFs are multi-page and too large for vision)
     let verified = false;
     if (isImage && markdown.trim().length > 0) {
       const corrected = await verifyWithVision(base64, file.type, markdown);
       if (corrected !== markdown) {
-        markdown = corrected;
+        markdown = stripImageRefs(corrected);
         verified = true;
       }
     }
