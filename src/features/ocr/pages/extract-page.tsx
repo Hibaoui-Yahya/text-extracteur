@@ -642,8 +642,8 @@ export default function ExtractPage() {
                   <button
                     onClick={() => setShowPreview(true)}
                     className="mb-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                      bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
-                      border border-[var(--color-border-subtle)]"
+                      bg-gray-800/50 hover:bg-gray-800 text-gray-400 hover:text-white
+                      border border-gray-700"
                   >
                     <Eye size={14} />
                     Show original
@@ -653,20 +653,20 @@ export default function ExtractPage() {
                 {/* Loading */}
                 {isLoading && (
                   <div className="mb-5">
-                    <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 overflow-hidden">
+                    <div className="rounded-2xl border border-gray-800 bg-gray-900/70 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20">
                       <div className="loading-shimmer h-1" />
-                      <div className="p-5">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-9 h-9 rounded-full bg-[var(--color-accent-muted)] flex items-center justify-center">
-                            <div className="w-4 h-4 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin" />
+                      <div className="p-6">
+                        <div className="flex items-center gap-4 mb-5">
+                          <div className="w-10 h-10 rounded-full bg-[#35AEF3]/10 border border-[#35AEF3]/20 flex items-center justify-center">
+                            <div className="w-4 h-4 rounded-full border-2 border-[#35AEF3] border-t-transparent animate-spin" />
                           </div>
                           <div>
-                            <p className="text-[var(--color-text-primary)] font-semibold text-sm">
+                            <p className="text-white font-semibold text-sm">
                               {loadingStage === "verifying"
                                 ? "Verifying accuracy..."
                                 : "Extracting text..."}
                             </p>
-                            <p className="text-[var(--color-text-muted)] text-xs mt-0.5">
+                            <p className="text-gray-500 text-xs mt-0.5">
                               {loadingStage === "verifying"
                                 ? "Comparing OCR output against original image"
                                 : "Analyzing structure, tables, and multilingual content"}
@@ -674,35 +674,35 @@ export default function ExtractPage() {
                           </div>
                         </div>
                         {/* Stage indicators */}
-                        <div className="flex items-center gap-4 text-xs pl-1">
+                        <div className="flex items-center gap-5 text-xs pl-1">
                           <div
                             className={`flex items-center gap-1.5 ${
                               loadingStage === "verifying"
-                                ? "text-[var(--color-success)]"
-                                : "text-[var(--color-accent)]"
+                                ? "text-emerald-400"
+                                : "text-[#35AEF3]"
                             }`}
                           >
                             {loadingStage === "verifying" ? (
-                              <TickCircle size={12} variant="Bold" />
+                              <TickCircle size={13} variant="Bold" />
                             ) : (
-                              <div className="w-3 h-3 rounded-full border-[1.5px] border-[var(--color-accent)] border-t-transparent animate-spin" />
+                              <div className="w-3 h-3 rounded-full border-[1.5px] border-[#35AEF3] border-t-transparent animate-spin" />
                             )}
-                            <span>OCR</span>
+                            <span className="font-medium">OCR</span>
                           </div>
                           {isImage && (
                             <div
                               className={`flex items-center gap-1.5 ${
                                 loadingStage === "verifying"
-                                  ? "text-[var(--color-accent)]"
-                                  : "text-[var(--color-text-muted)]"
+                                  ? "text-[#35AEF3]"
+                                  : "text-gray-600"
                               }`}
                             >
                               {loadingStage === "verifying" ? (
-                                <div className="w-3 h-3 rounded-full border-[1.5px] border-[var(--color-accent)] border-t-transparent animate-spin" />
+                                <div className="w-3 h-3 rounded-full border-[1.5px] border-[#35AEF3] border-t-transparent animate-spin" />
                               ) : (
-                                <div className="w-3 h-3 rounded-full bg-[var(--color-border-default)]" />
+                                <div className="w-3 h-3 rounded-full bg-gray-700" />
                               )}
-                              <span>Vision verify</span>
+                              <span className="font-medium">Vision verify</span>
                             </div>
                           )}
                         </div>
@@ -715,37 +715,41 @@ export default function ExtractPage() {
                 {result && (
                   <div>
                     {/* Toolbar */}
-                    <div className="flex items-center justify-between mb-3 px-1">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[var(--color-text-muted)] text-xs font-medium">
-                          {result.pages} page
-                          {result.pages > 1 ? "s" : ""}
-                        </span>
-                        <span className="w-1 h-1 rounded-full bg-[var(--color-border-default)]" />
-                        <span className="text-[var(--color-text-muted)] text-xs">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+                      {/* Stats */}
+                      <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-800/40 border border-gray-800">
+                        <div className="flex items-center gap-1.5">
+                          <DocumentText1 size={13} color="#9ca3af" />
+                          <span className="text-gray-400 text-xs font-medium">
+                            {result.pages} page{result.pages > 1 ? "s" : ""}
+                          </span>
+                        </div>
+                        <span className="w-px h-3 bg-gray-700" />
+                        <span className="text-gray-500 text-xs">
                           {result.processing_time_ms}ms
                         </span>
                         {result.verified && (
                           <>
-                            <span className="w-1 h-1 rounded-full bg-[var(--color-border-default)]" />
-                            <span className="flex items-center gap-1 text-[var(--color-success)] text-xs font-medium">
-                              <ShieldTick size={12} variant="Bold" />
+                            <span className="w-px h-3 bg-gray-700" />
+                            <span className="flex items-center gap-1 text-emerald-400 text-xs font-medium">
+                              <ShieldTick size={13} variant="Bold" />
                               Verified
                             </span>
                           </>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      {/* Actions */}
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={handleCopy}
                           className={`
-                            flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                            border border-[var(--color-border-subtle)]
+                            flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-all
+                            border
                             ${
                               copied
-                                ? "bg-[var(--color-success)]/10 border-[var(--color-success)]/30 text-[var(--color-success)]"
-                                : "bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                : "bg-gray-800/50 hover:bg-gray-800 text-gray-400 hover:text-white border-gray-700"
                             }
                             ${copyFlash ? "copy-flash" : ""}
                           `}
@@ -764,18 +768,18 @@ export default function ExtractPage() {
                         </button>
                         <button
                           onClick={handleDownload}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                            bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
-                            border border-[var(--color-border-subtle)]"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-all
+                            bg-gray-800/50 hover:bg-gray-800 text-gray-400 hover:text-white
+                            border border-gray-700"
                         >
                           <DocumentDownload size={14} />
                           Download
                         </button>
                         <button
                           onClick={handleNewExtraction}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                            bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
-                            border border-[var(--color-border-subtle)]"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-all
+                            bg-[#35AEF3]/10 hover:bg-[#35AEF3]/20 text-[#35AEF3]
+                            border border-[#35AEF3]/20 hover:border-[#35AEF3]/40"
                         >
                           <ArrowRotateLeft size={14} />
                           New
@@ -784,8 +788,8 @@ export default function ExtractPage() {
                     </div>
 
                     {/* Document viewer */}
-                    <div className="document-viewer rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 backdrop-blur-sm overflow-hidden">
-                      <div dir="auto" className="p-6 md:p-8">
+                    <div className="document-viewer rounded-2xl border border-gray-800 bg-gray-900/70 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/20">
+                      <div dir="auto" className="p-6 md:p-8 lg:p-10">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={markdownComponents}
@@ -803,9 +807,12 @@ export default function ExtractPage() {
 
         {/* Footer */}
         <footer className="mt-20 text-center pb-8">
-          <p className="text-[var(--color-text-muted)] text-xs tracking-wide">
-            Powered by ConqrOCR &mdash; Processed in-memory, never stored
-          </p>
+          <div className="flex items-center justify-center gap-2 text-gray-500 text-xs tracking-wide">
+            <div className="w-2 h-2 rounded-full bg-[#35AEF3] animate-pulse" />
+            <span>Powered by ConqrOCR</span>
+            <span>&middot;</span>
+            <span>Processed in-memory, never stored</span>
+          </div>
         </footer>
       </main>
     </div>
