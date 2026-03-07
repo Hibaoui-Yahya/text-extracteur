@@ -8,6 +8,7 @@ import { FeatureCard } from '@/shared/ui/grid-feature-cards';
 import { HowItWorks } from '@/shared/ui/how-it-works';
 import { Header } from '@/shared/ui/header';
 import { CTAWithMarquee } from '@/shared/ui/cta-with-marquee';
+import { FeatureWithImageComparison } from '@/shared/ui/feature-with-image-comparison';
 
 const features = [
     {
@@ -124,49 +125,9 @@ export default function HeroSection() {
                     </Link>
                 </AnimatedContainer>
 
-                {/* Demo Preview */}
-                <AnimatedContainer delay={0.5} className="relative z-10 max-w-4xl mx-auto mt-16 px-4">
-                    <div className="bg-gray-900/70 backdrop-blur-sm rounded-2xl border border-gray-800 shadow-2xl shadow-black/50 p-8 hover:border-[#35AEF3]/30 transition-colors duration-500">
-                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-dashed border-gray-700 hover:border-[#35AEF3]/50 p-12 flex flex-col items-center justify-center transition-all duration-300 group">
-                            {/* Animated Icon */}
-                            <motion.div
-                                className="w-20 h-20 rounded-2xl bg-[#35AEF3]/10 border border-[#35AEF3]/20 flex items-center justify-center mb-6 group-hover:bg-[#35AEF3]/20 transition-colors"
-                                animate={{
-                                    y: [0, -8, 0],
-                                }}
-                                transition={{
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                            >
-                                <FileText className="w-10 h-10 text-[#35AEF3]" />
-                            </motion.div>
-
-                            {/* Animated Text */}
-                            <motion.p
-                                className="text-gray-300 text-lg"
-                                animate={{ opacity: [0.7, 1, 0.7] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                            >
-                                Smart Document Processing
-                            </motion.p>
-                            <p className="text-gray-500 text-sm mt-2">PDF, PNG, JPG, WEBP • Max 50MB</p>
-
-                            {/* Animated Button */}
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                <Link
-                                    href="/extract"
-                                    className="mt-6 inline-block bg-[#35AEF3] hover:bg-[#4FBEF5] text-white px-6 py-3 rounded-lg font-medium transition shadow-lg shadow-[#35AEF3]/25"
-                                >
-                                    Upload Document
-                                </Link>
-                            </motion.div>
-                        </div>
-                    </div>
+                {/* Before/After Comparison */}
+                <AnimatedContainer delay={0.5} className="relative z-10 mt-16">
+                    <FeatureWithImageComparison />
                 </AnimatedContainer>
             </section>
 
