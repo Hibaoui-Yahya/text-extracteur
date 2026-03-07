@@ -186,12 +186,8 @@ const markdownComponents: Components = {
       {children}
     </em>
   ),
-  img: ({ ...props }) => (
-    <img
-      className="my-4 rounded-lg border border-[var(--color-border-subtle)] max-w-full"
-      {...props}
-    />
-  ),
+  // Strip images — OCR returns references to non-existent files, we only want text
+  img: () => null,
 };
 
 export default function ExtractPage() {

@@ -66,6 +66,14 @@ export async function POST(request: NextRequest) {
       .map((page: { index: number; markdown: string }) => page.markdown)
       .join("\n\n---\n\n");
 
+    // Strip image references — Mistral OCR returns ![img](img-0.jpeg) etc.
+    // that point to non-existent files. We only want text.
+    markdown = markdown
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, "")    // ![alt](url)
+      .replace(/!\[[^\]]*\]\[[^\]]*\]/g, "")    // ![alt][ref]
+      .replace(/<img[^>]*>/gi, "")               // <img> tags
+      .replace(/\n{3,}/g, "\n\n");               // clean up extra blank lines
+
     // Stage 2: Vision verification (images only)
     // Sends the original image + OCR output to a vision model to correct errors
     let verified = false;
