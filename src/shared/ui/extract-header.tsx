@@ -27,8 +27,8 @@ export function ExtractHeader({ className }: ExtractHeaderProps) {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
                     <img
-                        src="/Conqrai_logo.svg"
-                        alt="ConqrAI"
+                        src="/ConqrOCR.png"
+                        alt="ConqrOCR"
                         className="h-7 object-contain"
                     />
                 </Link>

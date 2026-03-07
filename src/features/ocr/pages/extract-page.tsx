@@ -433,8 +433,8 @@ export default function ExtractPage() {
             className={`inline-flex items-center justify-center transition-all duration-500 ${hasResults ? "mb-2" : "mb-4"}`}
           >
             <img
-              src="/Conqrai_logo.svg"
-              alt="ConqrAI"
+              src="/ConqrOCR.png"
+              alt="ConqrOCR"
               className={`object-contain opacity-90 transition-all duration-500 ${hasResults ? "h-9" : "h-14"}`}
             />
           </div>

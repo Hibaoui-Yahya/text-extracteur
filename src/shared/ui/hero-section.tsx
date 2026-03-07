@@ -166,9 +166,9 @@ export default function HeroSection() {
                     <div className="flex flex-col items-center text-center gap-4">
                         {/* Logo */}
                         <img
-                            src="/Conqrai_logo.svg"
-                            alt="ConqrAI"
-                            className="h-16 object-contain"
+                            src="/ConqrOCR.png"
+                            alt="ConqrOCR"
+                            className="h-12 object-contain"
                         />
 
                         {/* Info */}
