@@ -29,37 +29,47 @@ interface ExtractResponse {
 
 const markdownComponents: Components = {
   table: ({ children, ...props }) => (
-    <div className="my-5 overflow-x-auto rounded-lg border border-[var(--color-border-subtle)]">
+    <div className="my-6 overflow-x-auto rounded-xl border border-gray-700/60 bg-gray-800/30 backdrop-blur-sm shadow-lg shadow-black/10">
       <table className="w-full border-collapse text-sm" {...props}>
         {children}
       </table>
     </div>
   ),
   thead: ({ children, ...props }) => (
-    <thead className="bg-[var(--color-surface-raised)]" {...props}>
+    <thead className="bg-gray-800/80 border-b-2 border-[#35AEF3]/20" {...props}>
       {children}
     </thead>
   ),
   th: ({ children, ...props }) => (
     <th
-      className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] border-b border-[var(--color-border-default)]"
+      dir="auto"
+      className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-[#35AEF3]/80 border-b border-gray-700/50 first:rounded-tl-xl last:rounded-tr-xl"
       {...props}
     >
       {children}
     </th>
   ),
-  td: ({ children, ...props }) => (
-    <td
-      dir="auto"
-      className="px-4 py-2.5 text-[var(--color-text-primary)] border-b border-[var(--color-border-subtle)]"
-      {...props}
-    >
-      {children}
-    </td>
-  ),
+  td: ({ children, ...props }) => {
+    const text = typeof children === "string" ? children : "";
+    const isLabel =
+      text.includes(":") && text.split(":")[0].trim().length < 40;
+    return (
+      <td
+        dir="auto"
+        className={`px-5 py-3 border-b border-gray-700/30 ${
+          isLabel
+            ? "text-gray-400 font-medium text-xs whitespace-nowrap"
+            : "text-white"
+        }`}
+        {...props}
+      >
+        {children}
+      </td>
+    );
+  },
   tr: ({ children, ...props }) => (
     <tr
-      className="transition-colors hover:bg-[var(--color-accent-muted)]"
+      className="transition-colors hover:bg-[#35AEF3]/[0.04] even:bg-gray-800/20"
       {...props}
     >
       {children}
@@ -68,25 +78,27 @@ const markdownComponents: Components = {
   h1: ({ children, ...props }) => (
     <h1
       dir="auto"
-      className="text-2xl font-bold text-[var(--color-text-primary)] mt-8 mb-4 pb-3 border-b border-[var(--color-border-subtle)]"
+      className="text-2xl font-bold text-white mt-10 mb-4 pb-3 border-b border-gray-700/50 flex items-center gap-3"
       {...props}
     >
+      <span className="w-1 h-7 rounded-full bg-[#35AEF3]" />
       {children}
     </h1>
   ),
   h2: ({ children, ...props }) => (
     <h2
       dir="auto"
-      className="text-xl font-bold text-[var(--color-text-primary)] mt-7 mb-3"
+      className="text-xl font-bold text-white mt-8 mb-3 flex items-center gap-2.5"
       {...props}
     >
+      <span className="w-1 h-5 rounded-full bg-[#35AEF3]/60" />
       {children}
     </h2>
   ),
   h3: ({ children, ...props }) => (
     <h3
       dir="auto"
-      className="text-lg font-semibold text-[var(--color-text-primary)] mt-5 mb-2"
+      className="text-lg font-semibold text-white mt-6 mb-2"
       {...props}
     >
       {children}
@@ -95,7 +107,7 @@ const markdownComponents: Components = {
   h4: ({ children, ...props }) => (
     <h4
       dir="auto"
-      className="text-base font-semibold text-[var(--color-text-primary)] mt-4 mb-2"
+      className="text-base font-semibold text-gray-200 mt-5 mb-2"
       {...props}
     >
       {children}
@@ -104,37 +116,35 @@ const markdownComponents: Components = {
   p: ({ children, ...props }) => (
     <p
       dir="auto"
-      className="text-[var(--color-text-primary)] leading-[1.75] my-3"
+      className="text-gray-300 leading-[1.8] my-3"
       {...props}
     >
       {children}
     </p>
   ),
   ul: ({ children, ...props }) => (
-    <ul className="my-3 ml-1 space-y-1.5 list-none" {...props}>
+    <ul className="my-4 ml-1 space-y-2 list-none" {...props}>
       {children}
     </ul>
   ),
   ol: ({ children, ...props }) => (
-    <ol className="my-3 ml-1 space-y-1.5 list-decimal list-inside" {...props}>
+    <ol className="my-4 ml-1 space-y-2 list-decimal list-inside" {...props}>
       {children}
     </ol>
   ),
   li: ({ children, ...props }) => (
     <li
       dir="auto"
-      className="text-[var(--color-text-primary)] leading-relaxed pl-1 flex gap-2 items-baseline"
+      className="text-gray-300 leading-relaxed pl-1 flex gap-2.5 items-baseline"
       {...props}
     >
-      <span className="text-[var(--color-accent)] text-xs mt-1.5 shrink-0">
-        &#9679;
-      </span>
+      <span className="text-[#35AEF3] text-[8px] mt-1.5 shrink-0">&#9679;</span>
       <span className="flex-1">{children}</span>
     </li>
   ),
   blockquote: ({ children, ...props }) => (
     <blockquote
-      className="my-4 pl-4 border-l-2 border-[var(--color-accent)] text-[var(--color-text-secondary)] italic"
+      className="my-5 pl-5 border-l-2 border-[#35AEF3]/40 text-gray-400 italic bg-gray-800/20 py-3 pr-4 rounded-r-lg"
       {...props}
     >
       {children}
@@ -151,7 +161,7 @@ const markdownComponents: Components = {
     }
     return (
       <code
-        className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-[var(--color-accent)] text-[0.875em] font-mono"
+        className="px-1.5 py-0.5 rounded bg-gray-800 text-[#35AEF3] text-[0.875em] font-mono border border-gray-700/50"
         {...props}
       >
         {children}
@@ -160,7 +170,7 @@ const markdownComponents: Components = {
   },
   pre: ({ children, ...props }) => (
     <pre
-      className="my-4 p-4 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border-subtle)] overflow-x-auto text-sm font-mono text-[var(--color-text-primary)]"
+      className="my-5 p-5 rounded-xl bg-gray-900/80 border border-gray-700/50 overflow-x-auto text-sm font-mono text-gray-300"
       {...props}
     >
       {children}
@@ -168,32 +178,28 @@ const markdownComponents: Components = {
   ),
   hr: (props) => (
     <hr
-      className="my-8 border-0 h-px bg-gradient-to-r from-transparent via-[var(--color-border-default)] to-transparent"
+      className="my-10 border-0 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"
       {...props}
     />
   ),
   a: ({ children, ...props }) => (
     <a
-      className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline underline-offset-2 decoration-[var(--color-accent)]/30 hover:decoration-[var(--color-accent)] transition-colors"
+      className="text-[#35AEF3] hover:text-[#4FBEF5] underline underline-offset-2 decoration-[#35AEF3]/30 hover:decoration-[#35AEF3] transition-colors"
       {...props}
     >
       {children}
     </a>
   ),
   strong: ({ children, ...props }) => (
-    <strong
-      className="font-semibold text-[var(--color-text-primary)]"
-      {...props}
-    >
+    <strong className="font-semibold text-white" {...props}>
       {children}
     </strong>
   ),
   em: ({ children, ...props }) => (
-    <em className="text-[var(--color-text-primary)] italic" {...props}>
+    <em className="text-gray-300 italic" {...props}>
       {children}
     </em>
   ),
-  // Strip images — OCR returns references to non-existent files, we only want text
   img: () => null,
 };
 
