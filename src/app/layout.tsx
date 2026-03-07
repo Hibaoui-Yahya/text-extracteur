@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Noto_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const noto = Noto_Sans({
+  variable: "--font-noto",
+  subsets: ["latin", "latin-ext", "cyrillic", "greek", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -31,7 +38,10 @@ export default function RootLayout({
         <link rel="icon" href="/Conqrai.png" type="image/png" />
         <link rel="apple-touch-icon" href="/Conqrai.png" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+      <body
+        className={`${jakarta.variable} ${noto.variable} font-sans antialiased`}
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>

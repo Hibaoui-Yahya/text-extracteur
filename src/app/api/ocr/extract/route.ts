@@ -1,10 +1,84 @@
-// OCR Extract API Route
 import { NextRequest, NextResponse } from "next/server";
-import { POST as ocrRoutePOST } from '@/features/ocr/api/route';
+import { extractTextFromImage, extractTextFromPdfWithOCR } from "@/core/services/mistral.service";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  return ocrRoutePOST(request);
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const ALLOWED_TYPES = [
+  "application/pdf",
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+];
+
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "File too large (max 50MB)" },
+        { status: 400 }
+      );
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: `Unsupported file type: ${file.type}` },
+        { status: 400 }
+      );
+    }
+
+    const startTime = Date.now();
+    const arrayBuffer = await file.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+    let result;
+    if (file.type === "application/pdf") {
+      result = await extractTextFromPdfWithOCR(base64);
+    } else {
+      result = await extractTextFromImage(base64, file.type);
+    }
+
+    if (!result.success || !result.text) {
+      return NextResponse.json(
+        { error: result.error || "OCR processing failed" },
+        { status: 500 }
+      );
+    }
+
+    // Parse the Mistral OCR response to extract markdown from each page
+    const ocrData = JSON.parse(result.text);
+    const markdown = ocrData.pages
+      .map((page: { index: number; markdown: string }) => page.markdown)
+      .join("\n\n---\n\n");
+
+    return NextResponse.json(
+      {
+        markdown,
+        pages: ocrData.pages.length,
+        processing_time_ms: Date.now() - startTime,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("OCR API error:", error);
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
 }

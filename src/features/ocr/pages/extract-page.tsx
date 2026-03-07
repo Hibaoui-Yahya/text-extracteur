@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { Components } from "react-markdown";
 import {
   DocumentUpload,
   DocumentText1,
@@ -9,28 +11,193 @@ import {
   CloseCircle,
   Copy,
   TickCircle,
+  DocumentDownload,
+  ArrowRotateLeft,
 } from "iconsax-react";
-import { ALLOWED_FILE_TYPES } from "@/shared/constants/file-constants";
 import { validateFile } from "@/core/utils/file-validation";
 import { ExtractHeader } from "@/shared/ui/extract-header";
 
-import { OCRSystemResponse } from "@/shared/types/ocr-system.types";
-import { ResultsPanel } from "@/features/ocr/components/results-panel";
+interface ExtractResponse {
+  markdown: string;
+  pages: number;
+  processing_time_ms: number;
+}
+
+const markdownComponents: Components = {
+  table: ({ children, ...props }) => (
+    <div className="my-5 overflow-x-auto rounded-lg border border-[var(--color-border-subtle)]">
+      <table className="w-full border-collapse text-sm" {...props}>
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children, ...props }) => (
+    <thead className="bg-[var(--color-surface-raised)]" {...props}>
+      {children}
+    </thead>
+  ),
+  th: ({ children, ...props }) => (
+    <th
+      className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] border-b border-[var(--color-border-default)]"
+      {...props}
+    >
+      {children}
+    </th>
+  ),
+  td: ({ children, ...props }) => (
+    <td
+      className="px-4 py-2.5 text-[var(--color-text-primary)] border-b border-[var(--color-border-subtle)]"
+      {...props}
+    >
+      {children}
+    </td>
+  ),
+  tr: ({ children, ...props }) => (
+    <tr
+      className="transition-colors hover:bg-[var(--color-accent-muted)]"
+      {...props}
+    >
+      {children}
+    </tr>
+  ),
+  h1: ({ children, ...props }) => (
+    <h1
+      className="text-2xl font-bold text-[var(--color-text-primary)] mt-8 mb-4 pb-3 border-b border-[var(--color-border-subtle)]"
+      {...props}
+    >
+      {children}
+    </h1>
+  ),
+  h2: ({ children, ...props }) => (
+    <h2
+      className="text-xl font-bold text-[var(--color-text-primary)] mt-7 mb-3"
+      {...props}
+    >
+      {children}
+    </h2>
+  ),
+  h3: ({ children, ...props }) => (
+    <h3
+      className="text-lg font-semibold text-[var(--color-text-primary)] mt-5 mb-2"
+      {...props}
+    >
+      {children}
+    </h3>
+  ),
+  h4: ({ children, ...props }) => (
+    <h4
+      className="text-base font-semibold text-[var(--color-text-primary)] mt-4 mb-2"
+      {...props}
+    >
+      {children}
+    </h4>
+  ),
+  p: ({ children, ...props }) => (
+    <p
+      className="text-[var(--color-text-primary)] leading-[1.75] my-3"
+      {...props}
+    >
+      {children}
+    </p>
+  ),
+  ul: ({ children, ...props }) => (
+    <ul className="my-3 ml-1 space-y-1.5 list-none" {...props}>
+      {children}
+    </ul>
+  ),
+  ol: ({ children, ...props }) => (
+    <ol className="my-3 ml-1 space-y-1.5 list-decimal list-inside" {...props}>
+      {children}
+    </ol>
+  ),
+  li: ({ children, ...props }) => (
+    <li
+      className="text-[var(--color-text-primary)] leading-relaxed pl-1 flex gap-2 items-baseline"
+      {...props}
+    >
+      <span className="text-[var(--color-accent)] text-xs mt-1.5 shrink-0">&#9679;</span>
+      <span>{children}</span>
+    </li>
+  ),
+  blockquote: ({ children, ...props }) => (
+    <blockquote
+      className="my-4 pl-4 border-l-2 border-[var(--color-accent)] text-[var(--color-text-secondary)] italic"
+      {...props}
+    >
+      {children}
+    </blockquote>
+  ),
+  code: ({ children, className, ...props }) => {
+    const isBlock = className?.includes("language-");
+    if (isBlock) {
+      return (
+        <code
+          className={`block text-sm ${className || ""}`}
+          {...props}
+        >
+          {children}
+        </code>
+      );
+    }
+    return (
+      <code
+        className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-[var(--color-accent)] text-[0.875em] font-mono"
+        {...props}
+      >
+        {children}
+      </code>
+    );
+  },
+  pre: ({ children, ...props }) => (
+    <pre
+      className="my-4 p-4 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border-subtle)] overflow-x-auto text-sm font-mono text-[var(--color-text-primary)]"
+      {...props}
+    >
+      {children}
+    </pre>
+  ),
+  hr: (props) => (
+    <hr
+      className="my-8 border-0 h-px bg-gradient-to-r from-transparent via-[var(--color-border-default)] to-transparent"
+      {...props}
+    />
+  ),
+  a: ({ children, ...props }) => (
+    <a
+      className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline underline-offset-2 decoration-[var(--color-accent)]/30 hover:decoration-[var(--color-accent)] transition-colors"
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+  strong: ({ children, ...props }) => (
+    <strong className="font-semibold text-[var(--color-text-primary)]" {...props}>
+      {children}
+    </strong>
+  ),
+  em: ({ children, ...props }) => (
+    <em className="text-[var(--color-text-primary)] italic" {...props}>
+      {children}
+    </em>
+  ),
+  img: ({ ...props }) => (
+    <img
+      className="my-4 rounded-lg border border-[var(--color-border-subtle)] max-w-full"
+      {...props}
+    />
+  ),
+};
 
 export default function ExtractPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [ocrResponse, setOcrResponse] = useState<OCRSystemResponse | null>(null);
+  const [result, setResult] = useState<ExtractResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [isPasting, setIsPasting] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [extractedText, setExtractedText] = useState<string>("");
-  const [pageCount, setPageCount] = useState<number>(0);
+  const [copyFlash, setCopyFlash] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const ALLOWED_TYPES = ALLOWED_FILE_TYPES;
+  const resultRef = useRef<HTMLElement>(null);
 
   const validateFileWrapper = (selectedFile: File): boolean => {
     const validation = validateFile(selectedFile);
@@ -46,64 +213,48 @@ export default function ExtractPage() {
     if (selectedFile && validateFileWrapper(selectedFile)) {
       setFile(selectedFile);
       setError("");
-      setExtractedText("");
-      setPageCount(0);
+      setResult(null);
     }
   };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && validateFileWrapper(droppedFile)) {
       setFile(droppedFile);
       setError("");
-      setExtractedText("");
-      setPageCount(0);
+      setResult(null);
     }
   }, []);
 
-  // Handle paste from clipboard (Ctrl+V)
   const handlePaste = useCallback((e: ClipboardEvent) => {
     const items = e.clipboardData?.items;
     if (!items) return;
-
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-
-      // Check if it's an image
-      if (item.type.startsWith('image/')) {
+      if (item.type.startsWith("image/")) {
         e.preventDefault();
-        setIsPasting(true);
-
         const blob = item.getAsFile();
         if (blob) {
-          // Create a proper File object with a name
-          const extension = item.type.split('/')[1] || 'png';
-          const fileName = `pasted-image-${Date.now()}.${extension}`;
-          const file = new File([blob], fileName, { type: item.type });
-
-          if (validateFileWrapper(file)) {
-            setFile(file);
+          const ext = item.type.split("/")[1] || "png";
+          const f = new File([blob], `pasted-image-${Date.now()}.${ext}`, {
+            type: item.type,
+          });
+          if (validateFileWrapper(f)) {
+            setFile(f);
             setError("");
-            setExtractedText("");
-            setPageCount(0);
+            setResult(null);
           }
         }
-
-        setIsPasting(false);
         break;
       }
     }
   }, []);
 
-  // Listen for paste events globally
   useEffect(() => {
-    document.addEventListener('paste', handlePaste);
-    return () => {
-      document.removeEventListener('paste', handlePaste);
-    };
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
   }, [handlePaste]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -124,8 +275,7 @@ export default function ExtractPage() {
 
     setIsLoading(true);
     setError("");
-    setOcrResponse(null);
-    setShowResults(false);
+    setResult(null);
 
     try {
       const formData = new FormData();
@@ -136,73 +286,42 @@ export default function ExtractPage() {
         body: formData,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(data.error || `HTTP error ${response.status}`);
       }
 
-      const result: OCRSystemResponse = await response.json();
-      
-      // Validate the response structure
-      if (!result.request_id || !result.plain_text || !result.doc_type) {
-        throw new Error("Invalid OCR response structure");
-      }
+      setResult(data);
 
-      setOcrResponse(result);
-      setShowResults(true);
+      // Scroll to result after render
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     } catch (err) {
-      setError(
-        `Request failed: ${err instanceof Error ? err.message : "Unknown error"}`
-      );
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCopy = async () => {
-    if (extractedText) {
-      await navigator.clipboard.writeText(extractedText);
+    if (result?.markdown) {
+      await navigator.clipboard.writeText(result.markdown);
       setCopied(true);
+      setCopyFlash(true);
       setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopyFlash(false), 400);
     }
   };
 
-  const handleCopyText = async () => {
-    if (ocrResponse?.plain_text) {
-      await navigator.clipboard.writeText(ocrResponse.plain_text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const handleCopyJson = async () => {
-    if (ocrResponse) {
-      await navigator.clipboard.writeText(JSON.stringify(ocrResponse, null, 2));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const handleDownloadText = () => {
-    if (ocrResponse?.plain_text) {
-      const blob = new Blob([ocrResponse.plain_text], { type: 'text/plain' });
+  const handleDownload = () => {
+    if (result?.markdown) {
+      const blob = new Blob([result.markdown], { type: "text/markdown" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `extracted-text-${ocrResponse.request_id}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-  };
-
-  const handleDownloadJson = () => {
-    if (ocrResponse) {
-      const blob = new Blob([JSON.stringify(ocrResponse, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `extracted-data-${ocrResponse.request_id}.json`;
+      a.download = `extracted-${file?.name?.replace(/\.[^.]+$/, "") || "document"}.md`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -212,234 +331,62 @@ export default function ExtractPage() {
 
   const handleClear = () => {
     setFile(null);
-    setExtractedText("");
+    setResult(null);
     setError("");
-    setPageCount(0);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleNewExtraction = () => {
+    handleClear();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const getFileIcon = () => {
     if (!file) return null;
-    if (file.type === "application/pdf") {
-      return <DocumentText1 size={32} color="#f87171" variant="Bold" />;
-    }
-    return <Gallery size={32} color="#60a5fa" variant="Bold" />;
+    if (file.type === "application/pdf")
+      return <DocumentText1 size={28} color="#f87171" variant="Bold" />;
+    return <Gallery size={28} color="#60a5fa" variant="Bold" />;
   };
 
-  // Simple markdown renderer
-  const renderMarkdown = (text: string) => {
-    const lines = text.split('\n');
-    const elements: React.ReactNode[] = [];
-    let listItems: string[] = [];
-    let listType: 'ul' | 'ol' | null = null;
-    let key = 0;
-
-    const flushList = () => {
-      if (listItems.length > 0 && listType) {
-        if (listType === 'ul') {
-          elements.push(
-            <ul key={key++} className="list-disc list-inside space-y-1 my-3 text-gray-300">
-              {listItems.map((item, i) => <li key={i}>{item}</li>)}
-            </ul>
-          );
-        } else {
-          elements.push(
-            <ol key={key++} className="list-decimal list-inside space-y-1 my-3 text-gray-300">
-              {listItems.map((item, i) => <li key={i}>{item}</li>)}
-            </ol>
-          );
-        }
-        listItems = [];
-        listType = null;
-      }
-    };
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-
-      // Horizontal rule
-      if (line.match(/^---+$/)) {
-        flushList();
-        elements.push(<hr key={key++} className="border-gray-700 my-6" />);
-        continue;
-      }
-
-      // Check for REAL markdown table (must have separator row with dashes)
-      // Format: | Header | Header |
-      //         |--------|--------|
-      //         | Cell   | Cell   |
-      if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
-        // Look ahead for separator row (contains dashes)
-        const nextLine = lines[i + 1];
-        const hasSeparator = nextLine && nextLine.match(/^\|[\s-:|]+\|$/);
-
-        if (hasSeparator) {
-          flushList();
-
-          // Collect all table rows
-          const tableRows: string[] = [line];
-          let j = i + 1;
-          while (j < lines.length && lines[j].includes('|') && lines[j].trim().startsWith('|')) {
-            tableRows.push(lines[j]);
-            j++;
-          }
-          i = j - 1; // Skip processed lines
-
-          // Parse table - filter out separator rows
-          const parsedRows = tableRows
-            .filter(row => !row.match(/^\|[\s-:|]+\|$/)) // Filter separator rows
-            .map(row =>
-              row.split('|')
-                .filter(cell => cell.trim() !== '')
-                .map(cell => cell.trim())
-            )
-            .filter(row => row.length >= 2); // Must have at least 2 columns
-
-          if (parsedRows.length >= 2) { // Must have header + at least 1 data row
-            const headerRow = parsedRows[0];
-            const bodyRows = parsedRows.slice(1);
-
-            elements.push(
-              <div key={key++} className="my-4 overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-600 text-sm">
-                  <thead>
-                    <tr className="bg-gray-800">
-                      {headerRow.map((cell, cellIdx) => (
-                        <th key={cellIdx} className="border border-gray-600 px-4 py-2 text-left text-white font-semibold">
-                          {cell}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bodyRows.map((row, rowIdx) => (
-                      <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-gray-900/50' : 'bg-gray-800/30'}>
-                        {row.map((cell, cellIdx) => (
-                          <td key={cellIdx} className="border border-gray-600 px-4 py-2 text-gray-300">
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            );
-            continue;
-          }
-        }
-      }
-
-      // Headers
-      if (line.startsWith('### ')) {
-        flushList();
-        elements.push(
-          <h3 key={key++} className="text-lg font-semibold text-white mt-6 mb-2">
-            {line.slice(4)}
-          </h3>
-        );
-        continue;
-      }
-      if (line.startsWith('## ')) {
-        flushList();
-        elements.push(
-          <h2 key={key++} className="text-xl font-bold text-white mt-6 mb-3 pb-2 border-b border-gray-700">
-            {line.slice(3)}
-          </h2>
-        );
-        continue;
-      }
-      if (line.startsWith('# ')) {
-        flushList();
-        elements.push(
-          <h1 key={key++} className="text-2xl font-bold text-white mt-6 mb-4">
-            {line.slice(2)}
-          </h1>
-        );
-        continue;
-      }
-
-      // Bullet list
-      if (line.match(/^[-*]\s/)) {
-        if (listType !== 'ul') {
-          flushList();
-          listType = 'ul';
-        }
-        listItems.push(line.slice(2));
-        continue;
-      }
-
-      // Numbered list
-      if (line.match(/^\d+\.\s/)) {
-        if (listType !== 'ol') {
-          flushList();
-          listType = 'ol';
-        }
-        listItems.push(line.replace(/^\d+\.\s/, ''));
-        continue;
-      }
-
-      // Empty line
-      if (line.trim() === '') {
-        flushList();
-        continue;
-      }
-
-      // Regular paragraph
-      flushList();
-
-      // Process inline formatting
-      let content = line;
-      // Bold
-      content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-      // Italic
-      content = content.replace(/\*(.+?)\*/g, '<em>$1</em>');
-
-      elements.push(
-        <p
-          key={key++}
-          className="text-gray-300 leading-relaxed my-2"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
-      );
-    }
-
-    flushList();
-    return elements;
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-      {/* Background Pattern */}
-      <div className="fixed inset-0 opacity-30">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#35AEF3]/20 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-[#35AEF3]/10 via-transparent to-transparent"></div>
+    <div className="grain min-h-screen bg-[var(--color-background)]">
+      {/* Ambient background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-[var(--color-accent)]/[0.04] blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[10%] w-[400px] h-[400px] rounded-full bg-[var(--color-accent)]/[0.03] blur-[100px]" />
       </div>
 
-      {/* Header */}
       <ExtractHeader />
 
-      <main className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header with Logo */}
-        <header className="text-center mb-12">
-          <div className="inline-flex items-center justify-center mb-6">
+      <main className="relative z-10 mx-auto max-w-3xl px-5 py-10">
+        {/* Header */}
+        <header className="text-center mb-14">
+          <div className="inline-flex items-center justify-center mb-5">
             <img
               src="/Conqrai_logo.svg"
-              alt="ConqrAI Logo"
-              className="h-20 object-contain drop-shadow-lg"
+              alt="ConqrAI"
+              className="h-16 object-contain opacity-90"
             />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3">
-            Text Extracteur
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] mb-3">
+            Smart Document Extraction
           </h1>
-          <p className="text-gray-400 text-lg max-w-md mx-auto">
-            Extract text from any document using AI-powered OCR
+          <p className="text-[var(--color-text-secondary)] text-base max-w-md mx-auto leading-relaxed">
+            Tables, lists, any language, any layout.
+            <br />
+            <span className="text-[var(--color-text-muted)]">
+              One result, perfectly formatted.
+            </span>
           </p>
         </header>
 
-        {/* Upload Section */}
+        {/* Upload zone */}
         <section className="mb-8">
           <div
             onClick={() => fileInputRef.current?.click()}
@@ -447,13 +394,14 @@ export default function ExtractPage() {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             className={`
-              relative cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center
+              relative cursor-pointer rounded-2xl border-2 border-dashed
               transition-all duration-300 ease-out
-              ${isDragging
-                ? "border-[#35AEF3] bg-[#35AEF3]/10 scale-[1.02]"
-                : "border-gray-700 hover:border-gray-600 bg-gray-900/50 hover:bg-gray-900/70"
+              ${
+                isDragging
+                  ? "upload-zone-active bg-[var(--color-accent-muted)] scale-[1.01]"
+                  : "border-[var(--color-border-subtle)] hover:border-[var(--color-border-default)] bg-[var(--color-surface)]/60 hover:bg-[var(--color-surface)]"
               }
-              backdrop-blur-sm
+              ${file ? "p-6" : "p-10 md:p-14"}
             `}
           >
             <input
@@ -465,14 +413,16 @@ export default function ExtractPage() {
             />
 
             {file ? (
-              <div className="space-y-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gray-800 border border-gray-700">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-surface-overlay)] border border-[var(--color-border-subtle)]">
                   {getFileIcon()}
                 </div>
-                <div>
-                  <p className="text-white font-medium text-lg">{file.name}</p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                <div className="flex-1 min-w-0">
+                  <p className="text-[var(--color-text-primary)] font-semibold truncate">
+                    {file.name}
+                  </p>
+                  <p className="text-[var(--color-text-muted)] text-sm mt-0.5">
+                    {formatFileSize(file.size)}
                   </p>
                 </div>
                 <button
@@ -480,137 +430,216 @@ export default function ExtractPage() {
                     e.stopPropagation();
                     handleClear();
                   }}
-                  className="text-gray-400 hover:text-white text-sm underline underline-offset-4 transition-colors"
+                  className="shrink-0 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors p-2 rounded-lg hover:bg-[var(--color-surface-overlay)]"
+                  title="Remove file"
                 >
-                  Choose different file
+                  <CloseCircle size={20} variant="Bold" />
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gray-800 border border-gray-700">
-                  <DocumentUpload size={32} color="#6b7280" variant="Bold" />
+              <div className="flex flex-col items-center gap-5">
+                <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-surface-overlay)] border border-[var(--color-border-subtle)]">
+                  <DocumentUpload
+                    size={28}
+                    color="var(--color-text-muted)"
+                    variant="Bold"
+                  />
                 </div>
-                <div>
-                  <p className="text-white font-medium text-lg">
-                    Drop your document here or click to browse
+                <div className="text-center">
+                  <p className="text-[var(--color-text-primary)] font-semibold text-lg">
+                    Drop a document or{" "}
+                    <span className="text-[var(--color-accent)]">browse</span>
                   </p>
-                  <p className="text-gray-400 text-sm mt-2">
-                    Or press <kbd className="px-2 py-0.5 bg-gray-700 rounded text-xs font-mono text-[#35AEF3]">Ctrl</kbd> + <kbd className="px-2 py-0.5 bg-gray-700 rounded text-xs font-mono text-[#35AEF3]">V</kbd> to paste an image
+                  <p className="text-[var(--color-text-muted)] text-sm mt-2.5">
+                    <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
+                      Ctrl
+                    </kbd>{" "}
+                    <span className="text-[var(--color-text-muted)]">+</span>{" "}
+                    <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-overlay)] text-xs font-mono text-[var(--color-text-secondary)] border border-[var(--color-border-subtle)]">
+                      V
+                    </kbd>{" "}
+                    to paste an image from clipboard
                   </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Supports PDF, PNG, JPG • Max 20MB
-                  </p>
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    {["PDF", "PNG", "JPG", "WebP"].map((fmt) => (
+                      <span
+                        key={fmt}
+                        className="text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]"
+                      >
+                        {fmt}
+                      </span>
+                    ))}
+                    <span className="text-[var(--color-text-muted)] text-xs ml-1">
+                      up to 50 MB
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </section>
 
-        {/* Error Message */}
+        {/* Error */}
         {error && (
-          <div className="mb-8 p-4 rounded-xl bg-red-500/10 border border-red-500/30 backdrop-blur-sm">
+          <div className="mb-6 p-4 rounded-xl bg-[var(--color-error)]/[0.08] border border-[var(--color-error)]/20">
             <div className="flex items-start gap-3">
-              <CloseCircle size={20} color="#f87171" variant="Bold" className="shrink-0 mt-0.5" />
-              <p className="text-red-300">{error}</p>
+              <CloseCircle
+                size={18}
+                color="var(--color-error)"
+                variant="Bold"
+                className="shrink-0 mt-0.5"
+              />
+              <p className="text-[var(--color-error)] text-sm">{error}</p>
             </div>
           </div>
         )}
 
-        {/* Processing Status */}
+        {/* Extract Button */}
+        <section className="mb-10">
+          <button
+            onClick={handleExtract}
+            disabled={!file || isLoading}
+            className={`
+              w-full py-3.5 px-6 rounded-xl font-semibold text-base
+              transition-all duration-300 ease-out
+              ${
+                file && !isLoading
+                  ? "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white shadow-[0_0_24px_var(--color-accent-glow)] hover:shadow-[0_0_32px_var(--color-accent-glow)] hover:scale-[1.01] active:scale-[0.99]"
+                  : "bg-[var(--color-surface-raised)] text-[var(--color-text-muted)] cursor-not-allowed border border-[var(--color-border-subtle)]"
+              }
+            `}
+          >
+            {isLoading ? (
+              <span className="inline-flex items-center gap-3">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Extracting...
+              </span>
+            ) : (
+              "Extract"
+            )}
+          </button>
+        </section>
+
+        {/* Loading state */}
         {isLoading && (
-          <section className="mb-6">
-            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center">
-                      <svg className="animate-spin h-6 w-6 text-[#35AEF3]" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#35AEF3] rounded-full animate-ping"></div>
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold">Processing Document</h3>
-                    <p className="text-gray-400 text-sm">Processing document</p>
+          <section className="mb-10">
+            <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 overflow-hidden">
+              <div className="loading-shimmer h-1" />
+              <div className="p-6 flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full bg-[var(--color-accent-muted)] flex items-center justify-center">
+                    <div className="w-5 h-5 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#35AEF3] animate-pulse"></div>
-                  <span className="text-sm text-gray-400">In progress...</span>
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="flex items-center gap-4 text-xs">
-                  <div className="flex items-center gap-2 text-green-400">
-                    <TickCircle className="w-3 h-3" />
-                    <span>Upload Complete</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-blue-400">
-                    <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>OCR Processing</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="12" cy="12" r="8" />
-                    </svg>
-                    <span>Structuring Data</span>
-                  </div>
+                <div>
+                  <p className="text-[var(--color-text-primary)] font-semibold text-sm">
+                    Analyzing document
+                  </p>
+                  <p className="text-[var(--color-text-muted)] text-xs mt-0.5">
+                    Extracting structure, tables, lists, and text across all
+                    languages...
+                  </p>
                 </div>
               </div>
             </div>
           </section>
         )}
 
-        {/* Extract Button */}
-        <section className="mb-8">
-          <button
-            onClick={handleExtract}
-            disabled={!file || isLoading}
-            className={`
-              w-full py-4 px-6 rounded-xl font-semibold text-lg
-              transition-all duration-300 ease-out
-              ${file && !isLoading
-                ? "bg-[#35AEF3] hover:bg-[#4FBEF5] text-white shadow-lg shadow-[#35AEF3]/25 hover:shadow-[#35AEF3]/40 hover:scale-[1.02]"
-                : "bg-gray-800 text-gray-500 cursor-not-allowed"
-              }
-            `}
-          >
-            {isLoading ? (
-              <span className="inline-flex items-center gap-3">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                Processing document...
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-2">
-                Extract Text
-              </span>
-            )}
-          </button>
-        </section>
+        {/* Result */}
+        {result && (
+          <section ref={resultRef} className="mb-10 result-enter scroll-mt-6">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between mb-3 px-1">
+              <div className="flex items-center gap-3">
+                <span className="text-[var(--color-text-muted)] text-xs font-medium">
+                  {result.pages} page{result.pages > 1 ? "s" : ""}
+                </span>
+                <span className="w-1 h-1 rounded-full bg-[var(--color-border-default)]" />
+                <span className="text-[var(--color-text-muted)] text-xs">
+                  {result.processing_time_ms}ms
+                </span>
+              </div>
 
-        {/* Results Section */}
-        {showResults && ocrResponse && (
-          <ResultsPanel
-            response={ocrResponse}
-            onCopyText={handleCopyText}
-            onCopyJson={handleCopyJson}
-            onDownloadText={handleDownloadText}
-            onDownloadJson={handleDownloadJson}
-          />
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={handleCopy}
+                  className={`
+                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                    border border-[var(--color-border-subtle)]
+                    ${
+                      copied
+                        ? "bg-[var(--color-success)]/10 border-[var(--color-success)]/30 text-[var(--color-success)]"
+                        : "bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                    }
+                    ${copyFlash ? "copy-flash" : ""}
+                  `}
+                >
+                  {copied ? (
+                    <>
+                      <TickCircle size={14} variant="Bold" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      Copy
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                    bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+                    border border-[var(--color-border-subtle)]"
+                >
+                  <DocumentDownload size={14} />
+                  Download
+                </button>
+                <button
+                  onClick={handleNewExtraction}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                    bg-[var(--color-surface-raised)] hover:bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+                    border border-[var(--color-border-subtle)]"
+                >
+                  <ArrowRotateLeft size={14} />
+                  New
+                </button>
+              </div>
+            </div>
+
+            {/* Document viewer */}
+            <div className="document-viewer rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 backdrop-blur-sm overflow-hidden">
+              <div className="p-6 md:p-10">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={markdownComponents}
+                >
+                  {result.markdown}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </section>
         )}
 
         {/* Footer */}
-        <footer className="mt-16 text-center">
-          <p className="text-gray-600 text-sm">
-            Powered by ConqrOCR • Your data is processed in-memory and never stored
+        <footer className="mt-20 text-center pb-8">
+          <p className="text-[var(--color-text-muted)] text-xs tracking-wide">
+            Powered by ConqrOCR &mdash; Processed in-memory, never stored
           </p>
         </footer>
       </main>
