@@ -102,6 +102,7 @@ export async function extractTextFromImage(
                     type: "image_url",
                     image_url: `data:${mimeType};base64,${imageBase64}`,
                 },
+                include_image_base64: false,
             }),
         });
 
@@ -362,23 +363,28 @@ export async function verifyWithVision(
                         content: [
                             {
                                 type: "text",
-                                text: `You are a precise OCR verification assistant. Below is text extracted via OCR from the attached image. Your job is to compare the OCR output against the actual image and fix any errors.
+                                text: `You are a precise multilingual OCR verification and completion assistant. Below is text extracted via OCR from the attached image. Your job is to compare the OCR output against the actual image, fix errors, and ADD any text that the OCR missed entirely.
 
-INSTRUCTIONS:
-- Fix wrong characters, misspellings, or garbled text caused by OCR
+CRITICAL INSTRUCTIONS:
+- LOOK AT THE IMAGE CAREFULLY and extract ALL visible text, in ALL scripts and languages
+- If the OCR missed entire lines or sections (especially Arabic, Chinese, Hebrew, Hindi, or other non-Latin scripts), YOU MUST ADD THEM
+- Arabic/RTL text: transcribe it exactly as written, right-to-left. Include full diacritics if visible.
+- Calligraphic, handwritten, or decorative text: do your best to transcribe it accurately
+- Fix wrong characters, garbled text, or OCR artifacts
 - Fix broken table cells, misaligned columns, or missing rows
 - Fix incorrect numbers, dates, currencies, or special characters
-- Preserve ALL original languages exactly as they appear (Arabic, Chinese, French, mixed scripts, etc.)
-- Keep the markdown formatting intact (tables, lists, headings, bold, italic)
-- Do NOT add any content that is not visible in the image
+- Preserve ALL original languages exactly as they appear
+- Keep markdown formatting (tables, lists, headings, bold, italic)
+- Do NOT add content that is not visible in the image
 - Do NOT remove any content that IS visible in the image
-- Do NOT summarize, paraphrase, or rewrite — only correct OCR errors
-- Do NOT wrap your output in code blocks
+- Do NOT summarize or rewrite — only correct and complete
+- Do NOT wrap output in code blocks
+- Do NOT include image references like ![img](...)
 
 OCR EXTRACTED TEXT:
 ${ocrMarkdown}
 
-Return ONLY the corrected markdown. If the OCR output is already correct, return it unchanged.`,
+Return ONLY the corrected and completed markdown with ALL text from the image.`,
                             },
                             {
                                 type: "image_url",

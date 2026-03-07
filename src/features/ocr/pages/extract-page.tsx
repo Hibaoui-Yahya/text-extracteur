@@ -50,6 +50,7 @@ const markdownComponents: Components = {
   ),
   td: ({ children, ...props }) => (
     <td
+      dir="auto"
       className="px-4 py-2.5 text-[var(--color-text-primary)] border-b border-[var(--color-border-subtle)]"
       {...props}
     >
@@ -66,6 +67,7 @@ const markdownComponents: Components = {
   ),
   h1: ({ children, ...props }) => (
     <h1
+      dir="auto"
       className="text-2xl font-bold text-[var(--color-text-primary)] mt-8 mb-4 pb-3 border-b border-[var(--color-border-subtle)]"
       {...props}
     >
@@ -74,6 +76,7 @@ const markdownComponents: Components = {
   ),
   h2: ({ children, ...props }) => (
     <h2
+      dir="auto"
       className="text-xl font-bold text-[var(--color-text-primary)] mt-7 mb-3"
       {...props}
     >
@@ -82,6 +85,7 @@ const markdownComponents: Components = {
   ),
   h3: ({ children, ...props }) => (
     <h3
+      dir="auto"
       className="text-lg font-semibold text-[var(--color-text-primary)] mt-5 mb-2"
       {...props}
     >
@@ -90,6 +94,7 @@ const markdownComponents: Components = {
   ),
   h4: ({ children, ...props }) => (
     <h4
+      dir="auto"
       className="text-base font-semibold text-[var(--color-text-primary)] mt-4 mb-2"
       {...props}
     >
@@ -98,6 +103,7 @@ const markdownComponents: Components = {
   ),
   p: ({ children, ...props }) => (
     <p
+      dir="auto"
       className="text-[var(--color-text-primary)] leading-[1.75] my-3"
       {...props}
     >
@@ -116,6 +122,7 @@ const markdownComponents: Components = {
   ),
   li: ({ children, ...props }) => (
     <li
+      dir="auto"
       className="text-[var(--color-text-primary)] leading-relaxed pl-1 flex gap-2 items-baseline"
       {...props}
     >
@@ -768,7 +775,7 @@ export default function ExtractPage() {
 
                     {/* Document viewer */}
                     <div className="document-viewer rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 backdrop-blur-sm overflow-hidden">
-                      <div className="p-6 md:p-8">
+                      <div dir="auto" className="p-6 md:p-8">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={markdownComponents}
