@@ -27,6 +27,8 @@ function stripImageRefs(md: string): string {
 }
 
 const ALLOWED_ORIGINS = [
+  "https://conqrocr.com",
+  "https://www.conqrocr.com",
   "https://app.conqrocr.com",
   "https://conqrocr-production.up.railway.app",
   "http://localhost:3000",
